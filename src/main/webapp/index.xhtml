@@ -4,6 +4,90 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets"
+<<<<<<< HEAD
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Endulus</title>
+    </h:head>
+    
+    
+    <h:body> 
+  
+       
+        <h:form>
+            <p:growl id="messages" showDetail="true" />
+              
+            <p:toolbar>
+   
+                <f:facet name="left">
+                    <p:menuButton value="Options">
+                       <p:menuitem value="Test" actionListener="#{toolbarView.save}" update="messages" icon="ui-icon-disk" />
+                       <p:menuitem value="Test" actionListener="#{toolbarView.update}" update="messages" icon="ui-icon-arrowrefresh-1-w" />
+                       <p:menuitem value="test" actionListener="#{toolbarView.delete}" ajax="false" icon="ui-icon-close" />
+                       <p:menuitem value="test" url="http://www.primefaces.org" icon="ui-icon-extlink" />
+                   </p:menuButton>
+                 
+                   <span class="ui-separator">
+                       <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                   </span>
+                       
+                   <p:commandButton type="button" value="Upload" icon="ui-icon-folder-open" />
+                   <p:commandButton type="button" value="Download" icon="ui-icon-arrowthick-1-s" />
+                  
+                   <span class="ui-separator">
+                       <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                   </span>
+                   
+                </f:facet>
+
+                <f:facet name="right" > 
+                    
+                   <p:commandButton type="button" title="Upload" icon="ui-icon-arrowthick-1-s" />
+                   <p:commandButton type="button" title="Download" icon="ui-icon-disk" />
+         
+                   <span class="ui-separator">
+                       <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                   </span>
+                   
+                   <p:commandButton type="button" title="Refresh" icon="ui-icon-arrowrefresh-1-w" />
+                   <p:commandButton type="button" title="Print" icon="ui-icon-print" />
+                   <span class="ui-separator">
+                       <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                   </span>
+                   <p:commandButton value="Connect To DB" id="connectDB" actionListener="#{mongoDBService.buttonConnectDb}" ajax="false"> 
+                   </p:commandButton>
+                   <p:commandButton value="Log out"  ajax="false" id="ajax" update="growl" actionListener="#{myService.buttonAction}" styleClass="ui-priority-primary" />
+                 
+               </f:facet>
+
+           </p:toolbar>
+                 
+        </h:form>
+  
+        
+        <h:form>  
+            <div align="right">        
+                <p:outputPanel>   
+                    <p:inputText id="globalFilter"  style="width:150px" placeholder="Enter keyword" value="#{searchText.getText1}"  />               
+                    <p:commandButton id = "search" actionListener="#{searchText.text1}" value="Search:"  ajax="false" />
+                </p:outputPanel>
+            </div>
+        </h:form>      
+        
+        
+        
+ 
+      <p:layout style="min-width:400px;min-height:600px;">
+           <p:layoutUnit position="west" resizable="true" size="300" minSize="60" maxSize="400">    
+               
+               <h:form id="tree">
+                    <p:growl id="messages" showDetail="true" />
+                    <p:tree value="#{treeEventsView.root}" var="doc" selectionMode="single" selection="#{treeEventsView.selectedNode}">
+                        <p:ajax event="expand" update=":tree:messages" listener="#{treeEventsView.onNodeExpand}" />
+                        <p:ajax event="collapse" update=":tree:messages" listener="#{treeEventsView.onNodeCollapse}" />
+                        <p:ajax event="select" update=":tree:messages" listener="#{treeEventsView.onNodeSelect}" />
+                        <p:ajax event="unselect" update=":tree:messages" listener="#{treeEventsView.onNodeUnselect}" />
+=======
       xmlns:p="http://primefaces.org/ui"
       xmlns:pe="http://primefaces.org/ui/extensions">
     <h:head>
@@ -60,6 +144,7 @@
                         <p:ajax event="collapse" update=":form:messages2" listener="#{treeEventsView.onNodeCollapse}" />
                         <p:ajax event="select" update=":form:messages2" listener="#{treeEventsView.onNodeSelect}" />
                         <p:ajax event="unselect" update=":form:messages2" listener="#{treeEventsView.onNodeUnselect}" />
+>>>>>>> 214a0680ba7d0c51ccf309426367a766ba206905
 
                         <p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">
                             <h:outputText value="#{doc.name}"/>
@@ -73,6 +158,88 @@
                         <p:treeNode type="mp3" icon="ui-icon-video">
                             <h:outputText value="#{doc.name}" />
                         </p:treeNode>
+<<<<<<< HEAD
+                    </p:tree>                   
+                </h:form>
+            </p:layoutUnit>
+           
+            <p:layoutUnit position="center">
+                <h:form id="form">
+                    <p:dataTable var="file" value="#{mongoDBService.files}" 
+                                rows="15" paginator="true" id="files"  rowKey="#{file.id}"
+                                paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                rowsPerPageTemplate="7,14,21" scrollable="true"  resizableColumns="true"  selection="#{mongoDBService.selectedFile}">>
+
+                        <f:facet name="header">
+                            Files
+                        </f:facet>
+                        <p:column>
+
+                            <p:panel style="text-align:center" >
+                                <h:panelGrid columns="1" style="size: 20px">
+                                    <f:facet name="header">
+                                        <p:graphicImage library="images" name="any.jpg"/> 
+                                    </f:facet> 
+
+                                    <h:outputText value="#{getFile.fileName}" />
+
+                                    <p:commandLink update=":form:fileDetail" oncomplete="PF('fileDialog').show()" title="View Detail">
+                                        <h:outputText styleClass="ui-icon ui-icon-search" style="margin:0 auto;" />
+                                        <f:setPropertyActionListener value="#{file}" target="#{mongoDBService.selectedFile}" />
+                                    </p:commandLink>
+                                </h:panelGrid>
+                            </p:panel>
+                            
+                        </p:column>
+    
+                    </p:dataTable>
+
+                    <p:dialog header="File Info" widgetVar="fileDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="fileDetail" style="text-align:center;">
+                            <p:panelGrid  columns="2" rendered="#{not empty mongoDBService.selectedFile}" columnClasses="label,value">
+                                <f:facet name="header">
+                                    <p:graphicImage library="images" name="any.jpg"/> 
+                                </f:facet>
+
+                                <h:outputText value="Id:" />
+                                <h:outputText value="#{mongoDBService.selectedFile.id}" />
+
+
+                            </p:panelGrid>
+                        </p:outputPanel>
+                        
+                    </p:dialog>
+                    
+                    
+                    
+                </h:form>   
+            </p:layoutUnit>
+ 
+               <p:layoutUnit  position="east" resizable="true" size="200" minSize="70" maxSize="200" >
+                ////Tree test2
+                <h:form id="tree1" >
+                    <p:panelMenu style="width:200px">
+                        <p:submenu label="JournalDev Tutorials"  icon="ui-icon-document">
+                            <p:submenu label="Links" icon="ui-icon-document">
+                                <p:submenu label="Tutorials" icon="ui-icon-document">
+                                    <p:menuitem value="Primefaces Tutorials" url="http://www.journaldev.com/dev/primefaces" />
+                                    <p:menuitem value="Java EE Tutorials" url="http://www.journaldev.com/dev/java/j2ee" />
+                                </p:submenu>
+                            </p:submenu>
+                            <p:menuitem value="Go To JournalDev" url="http://www.primefaces.org" />
+                        </p:submenu>
+                    </p:panelMenu>
+                 </h:form>
+           </p:layoutUnit>
+        </p:layout>                    
+              
+      
+     
+        
+    </h:body>  
+</html>
+
+=======
                     </p:tree>
                 </p:layoutUnit>
                 
@@ -124,3 +291,4 @@
     </h:body>
 
 </html>
+>>>>>>> 214a0680ba7d0c51ccf309426367a766ba206905
