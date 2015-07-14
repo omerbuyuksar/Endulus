@@ -19,6 +19,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.TreeNode;
 
 /**
  *
@@ -32,6 +34,7 @@ public class MongoDBService implements Serializable{
     private File selectedFile;
     private DB db;
     private boolean connected=false;
+    private TreeNode root;
      
     //@ManagedProperty("#{carService}")
     //private CarService service;
@@ -107,6 +110,7 @@ public class MongoDBService implements Serializable{
                 files.add(newFile);
             }
         }
+        root = new DefaultTreeNode("Root", null);
     }
  
     public List<File> getFiles() {
@@ -149,6 +153,9 @@ public class MongoDBService implements Serializable{
  
     public void setText2(String text2) {
         this.text2 = text2;
+    }
+    public TreeNode getRoot() {
+        return root;
     }
     
     
