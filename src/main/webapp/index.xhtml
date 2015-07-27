@@ -31,6 +31,17 @@
             <p:dialog widgetVar="statusDialog" modal="false" draggable="false" closable="false" resizable="false" showHeader="false">
                 <p:graphicImage library="images" name="ajax-loader1.gif" />                
             </p:dialog>
+            <p:dialog header="File Info" widgetVar="fileDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <p:outputPanel id="fileDetail" style="text-align:center;">
+                    <p:panelGrid  columns="2" rendered="#{not empty mongoDBService.selectedFile}" columnClasses="label,value">
+                        <f:facet name="header">
+                            <p:graphicImage library="images" name="any.jpg"/> 
+                        </f:facet>
+                        <h:outputText value="Id:" />
+                        <h:outputText value="#{mongoDBService.selectedFile.id}" />
+                    </p:panelGrid>
+                </p:outputPanel>
+            </p:dialog>
             <h:form id="form">
                 <h:outputStylesheet name="css/default.css" />
                 <p:growl id="messages" showDetail="true" />
@@ -92,17 +103,7 @@
                             </p:treeNode>
                         </p:tree>
 
-                        <p:dialog header="File Info" widgetVar="fileDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
-                            <p:outputPanel id="fileDetail" style="text-align:center;">
-                                <p:panelGrid  columns="2" rendered="#{not empty mongoDBService.selectedFile}" columnClasses="label,value">
-                                    <f:facet name="header">
-                                        <p:graphicImage library="images" name="any.jpg"/> 
-                                    </f:facet>
-                                    <h:outputText value="Id:" />
-                                    <h:outputText value="#{mongoDBService.selectedFile.id}" />
-                                </p:panelGrid>
-                            </p:outputPanel>
-                        </p:dialog>
+                        
                     </p:layoutUnit>
                     <p:layoutUnit position="center">
 
@@ -112,18 +113,20 @@
                                 Files
                             </f:facet>
 
-                            <p:panel style="text-align:center" >
-                                <h:panelGrid columns="1" style="width:100%">
-                                    <p:graphicImage library="images" name="any.jpg"/> 
+                            <h:panelGrid>
+                                    <p:row>
+                                        <p:column>
+                                            <p:commandLink ajax="false" >
+                                                <p:graphicImage style="height: 20px;width: 20px" library="images" name="any.jpg"/> 
+                                                <h:outputText value="#{file.fileName}" />
+                                                <p:fileDownload value="#{mongoDBService.getDownloadFile(file)}" />
+                                            </p:commandLink>
+                                        </p:column>
+                                    </p:row>
 
-                                    <h:outputText value="#{file.fileName}" />
 
-                                    <p:commandLink update=":form:fileDetail" oncomplete="PF('fileDialog').show()" title="View Detail">
-                                        <h:outputText styleClass="ui-icon ui-icon-search" style="margin:0 auto;" />
-                                        <f:setPropertyActionListener value="#{file}" target="#{mongoDBService.selectedFile}" />
-                                    </p:commandLink>
+                                    
                                 </h:panelGrid>
-                            </p:panel>
                         </p:dataGrid>
                     </p:layoutUnit>
                 </p:layout>

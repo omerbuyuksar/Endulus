@@ -5,21 +5,23 @@
  */
 package org.gebze.endulus;
 
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
+import java.io.InputStream;
 import java.util.List;
 import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
+import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
 
 /**
@@ -32,9 +34,9 @@ import org.primefaces.model.TreeNode;
 public class MongoDBService implements Serializable{
     private List<File> files;
     private File selectedFile;
-    private DB db;
     private boolean connected=false;
     private TreeNode root;
+    private MongoDb mydb;
      
     //@ManagedProperty("#{carService}")
     //private CarService service;
@@ -42,12 +44,10 @@ public class MongoDBService implements Serializable{
 
     public int buttonConnectDb() {
         try {
-            db=connectToMongoDB("mydb",27017,"192.168.77.25","nico","nico");
-            
-            connected=true;
-            files=new ArrayList<>();
-            init();
+            mydb.connectToMongoDB("mydb",27017,"192.168.77.25","nico","nico");
+            files=mydb.getAllFiles("veriler");
             addMessage("Connected");
+            connected=true;
         } catch (Exception e) {
             addMessage("Connection Failed");
         }
@@ -57,7 +57,7 @@ public class MongoDBService implements Serializable{
     
     public int buttonDownload() {
         try {
-            connectToMongoDB("mydb",27017,"192.168.77.25","nico","nico");
+            
             addMessage("Connected");
         } catch (Exception e) {
             addMessage("Connection Failed");
@@ -74,44 +74,32 @@ public class MongoDBService implements Serializable{
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
-    /**
-     *
-     * @param dbName
-     * @param port
-     * @param ipAddress
-     * @param userName
-     * @param password
-     * @return
-     * @throws java.net.UnknownHostException
-     */
-    public DB connectToMongoDB(String dbName,int port,String ipAddress, 
-                                     String userName , String password ) throws UnknownHostException {
-        MongoClient client;
-        DB database;
-
-        client = new MongoClient(ipAddress, port);
-        database = client.getDB(dbName);
-        database.authenticate(userName, password.toCharArray());
-
-        return database;
-    }
-    
-     
     @PostConstruct
     public void init() {
         Set<String> collectionNameList = null;
         List<String> list = new ArrayList();
-        File newFile;
-        if(connected){
-            collectionNameList = db.getCollectionNames();
-            list.addAll(collectionNameList);
-            for (String str : list) {
-                newFile = new File(str);
-                files.add(newFile);
-            }
-        }
+        mydb=new MongoDb();
+        
+        files=new ArrayList<>();
+
         root = new DefaultTreeNode("Root", null);
     }
+    public StreamedContent getDownloadFile(File file){
+        InputStream input ;
+        String str = null;
+        try {
+             input = mydb.getFileInputStream(file.getId(),file.getTable());
+             str = MongoDb.displayContentType(file.getFileName());
+        } catch (Exception e) {
+            e.printStackTrace();
+            addMessage("File cannot Download");
+            return null;
+        }
+        return new DefaultStreamedContent(input, str, file.getFileName());
+    }
+    
+    
+    
  
     public List<File> getFiles() {
         return files;
@@ -136,27 +124,10 @@ public class MongoDBService implements Serializable{
     public void delete() {
         addMessage("Data deleted");
     }
-    private String text1;  
-    private String text2;
- 
-    public String getText1() {
-        return text1;
-    }
- 
-    public void setText1(String text1) {
-        this.text1 = text1;
-    }
- 
-    public String getText2() {
-        return text2;
-    }
- 
-    public void setText2(String text2) {
-        this.text2 = text2;
-    }
+
     public TreeNode getRoot() {
         return root;
     }
     
-    
+
 }
