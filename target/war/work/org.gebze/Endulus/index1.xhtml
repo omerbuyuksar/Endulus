@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+     
+    <h:head>
+        <title> Index </title>
+    </h:head>
+    <h:body>
+        <h:form id="form4">
+            <p:growl id="messages1" showDetail="true" />
+            <p:toolbar>
+                <f:facet name="left">
+                    <p:menuButton value="Options">
+                        <p:menuitem value="Test" actionListener="#{save}" update="messages1" icon="ui-icon-disk" />
+                        <p:menuitem value="Test" actionListener="#{update}" update="messages1" icon="ui-icon-arrowrefresh-1-w" />
+                        <p:menuitem value="test" actionListener="#{delete}" ajax="false" icon="ui-icon-close" />
+                        <p:menuitem value="test" url="http://www.primefaces.org" icon="ui-icon-extlink" />
+                    </p:menuButton>
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+                    <p:commandButton type="button" value="Upload" icon="ui-icon-folder-open" />
+                    <p:commandButton type="button" value="Download" icon="ui-icon-arrowthick-1-s" />
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+                </f:facet>
+                <f:facet name="right" > 
+                    <p:commandButton type="button" title="Upload" icon="ui-icon-arrowthick-1-s" />
+                    <p:commandButton type="button" title="Download" icon="ui-icon-disk" />
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+                    <p:commandButton type="button" title="Refresh" icon="ui-icon-arrowrefresh-1-w" />
+                    <p:commandButton type="button" title="Print" icon="ui-icon-print" />
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+                    <p:inputText id="globalFilter"  style="width:150px" placeholder="Enter keyword" value="#{getText1}"  />               
+                    <p:commandButton id = "search" actionListener="#{text1}" value="Search:"  ajax="false" />
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+                    <p:commandButton value = "Connect to DB" id="connectDB" actionListener="#{mongoDBService.buttonConnectDb}" ajax="false" update="messages1" styleClass="ui-priority-primary" />   
+                    <p:commandButton value="Log out"  ajax="false" id="ajax" update="growl" actionListener="#{mongoDBService.buttonDownload}" styleClass="ui-priority-primary" />
+                </f:facet>
+            </p:toolbar>
+        </h:form>
+
+
+        <p:layout style="min-width:400px;min-height:600px; max-height: 600px">
+            
+            
+            <p:layoutUnit position="west" resizable="true" size="300" minSize="60" maxSize="400">   
+
+                 <h:form id="tree">
+                    <p:tree value="#{treeBeanRecursive.rootNode}" var="node" id="tree">
+                        <p:treeNode>
+                            <h:outputText value="#{node.getNodeData()}" />
+                        </p:treeNode>
+                        <p:treeNode type="#{node.getNodeType()}" icon="customProjectNode">
+                            <h:outputText value="#{node.getNodeData()}" />
+                        </p:treeNode>
+                    </p:tree>
+                </h:form> 
+                
+                
+////Tree test2
+                <h:form id="tree1" >
+                    <p:panelMenu style="width:200px">
+                        <p:submenu label="Table 1"  icon="ui-icon-document">
+                            <p:submenu label="Links" icon="ui-icon-document">
+                                <p:submenu label="Tutorials" icon="ui-icon-document">
+                                    <p:menuitem value="Primefaces Tutorials" url="http://www.journaldev.com/dev/primefaces" />
+                                    <p:menuitem value="Java EE Tutorials" url="http://www.journaldev.com/dev/java/j2ee" />
+                                </p:submenu>
+                            </p:submenu>
+                            <p:menuitem value="Go To JournalDev" url="http://www.primefaces.org" />
+                        </p:submenu>
+                    </p:panelMenu>
+                 </h:form>
+
+            </p:layoutUnit>
+
+
+            <h:form id="form">
+
+                <p:layoutUnit position="center">
+
+
+
+                    <p:dataGrid var="file" value="#{mongoDBService.files}" columns="7" >
+
+                        <f:facet name="header">
+                            Files
+                        </f:facet>
+
+                        <p:panel style="text-align:center"  visible="true" >
+                           
+                            <h:panelGrid columns="1"  >
+                             
+                                <p:graphicImage library="images"   name="klasor.jpg "/> 
+                                 
+                                    <p:commandLink update=":form:fileDetail" oncomplete="PF('fileDialog').show()" title="View Detail">
+                                     <h:outputText value="#{file.fileName}" />
+                                     <h:outputText styleClass="ui-icon ui-icon-search" style="margin:0 auto;" />
+                            
+                                     <f:setPropertyActionListener value="#{file}" target="#{mongoDBService.selectedFile}" />
+                                     </p:commandLink>  
+
+                                     <h:outputText value="dosyabilgisi 1" />
+                                     <h:outputText value="dosyabilgisi 2" />
+                             </h:panelGrid>
+
+
+                        </p:panel>
+
+                    </p:dataGrid>>
+                    
+               
+                </p:layoutUnit>
+
+
+
+                <p:dialog header="File Info" widgetVar="fileDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:outputPanel id="fileDetail" style="text-align:center;">
+                        <p:panelGrid  columns="2" rendered="#{not empty mongoDBService.selectedFile}" columnClasses="label,value">
+                            <f:facet name="header">
+                                <p:graphicImage library="images" name="any.jpg"/> 
+                            </f:facet>
+                            <h:outputText value="Id:" />
+                            <h:outputText value="#{mongoDBService.selectedFile.id}" />
+                        </p:panelGrid>
+                    </p:outputPanel>
+                </p:dialog>  
+            </h:form>
+
+        </p:layout>
+
+      
+            
+    
+    
+    </h:body>
+
+</html>
