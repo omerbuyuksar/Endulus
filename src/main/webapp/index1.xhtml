@@ -85,6 +85,27 @@
                  </h:form>
 
             </p:layoutUnit>
+            
+            
+//
+                            <p:tree id="tree1" value="#{treeBean.model}"
+                                   var="node"
+                                   selectionMode="single"
+                                   selection="#{treeBean.selectedNode}"
+                                   >
+                               <p:ajax event="select"  listener="#{treeBean.onNodeSelect}" />
+                               <p:ajax event="expand" listener="#{treeBean.onNodeExpand}" />
+                               <p:ajax event="collapse" listener="#{treeBean.onNodeCollapse}" />
+                               <p:treeNode type="node"
+                                           expandedIcon="folder-open"
+                                           collapsedIcon="folder-collapsed">
+                                   <h:outputText value="#{node}"/>
+                               </p:treeNode>
+                               <p:treeNode type="leaf" icon="document-node">
+                                   <h:outputText value="#{file.fileName}" />
+                                      
+                               </p:treeNode>
+                           </p:tree>
 
 
             <h:form id="form">

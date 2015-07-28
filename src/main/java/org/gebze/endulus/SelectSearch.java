@@ -16,11 +16,11 @@ import javax.faces.context.FacesContext;
 @ManagedBean
 public class SelectSearch {
  
-    private boolean value1; 
+    private boolean value1 = true; 
     private boolean value2;
     
     private String console;
- 
+    
     public boolean isValue1() {
         return value1;
     }
