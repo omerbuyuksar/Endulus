@@ -12,6 +12,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
+import com.sun.jersey.api.client.ClientResponse;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -19,23 +20,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.MediaType;
 import org.bson.types.ObjectId;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
  * @author pc
  */
-public class MongoDb {
+public class MongoDbService {
 
     private DB db;
-    private boolean connected=false;
+    private boolean connected = false;
     private int cursorLimit;
+   
 
-    public MongoDb() {
-        cursorLimit=0;
+    public MongoDbService() {
+        cursorLimit = 0;
     }
 
-    
     /**
      *
      * @param dbName
@@ -47,7 +50,7 @@ public class MongoDb {
      * @throws java.net.UnknownHostException
      */
     public DB connectToMongoDB(String dbName, int port, String ipAddress,
-        String userName, String password) throws UnknownHostException {
+            String userName, String password) throws UnknownHostException {
         MongoClient client;
         DB database;
 
@@ -55,24 +58,27 @@ public class MongoDb {
         database = client.getDB(dbName);
         database.authenticate(userName, password.toCharArray());
 
-       db=database;
-       connected=true;
+        db = database;
+        connected = true;
         return database;
     }
-    public List<File> getAllFiles(String collectionName) {
+
+    public List<FileModel> getAllFiles(String collectionName) {
         String str = null;
-        File newFile;
+        FileModel newFile;
         boolean sonuncuMu;
-        boolean flag=false;
-        List<File> list=new ArrayList<>();
+        boolean flag = false;
+        List<FileModel> list = new ArrayList<>();
         DBCollection coll = db.getCollection(collectionName);
-        DBCursor cursor = coll.find();
-        cursor.limit(cursorLimit);
+        
+        DBCursor  cursor = coll.find();
+        cursor= cursor.limit(cursorLimit);
         
         while (cursor.hasNext()) {
             BasicDBObject result = (BasicDBObject) cursor.next();
-            newFile= new File();
-            if (result.getString("isim",null)!=null) {
+            newFile = new FileModel();
+            flag = false;
+            if (result.getString("isim", null) != null) {
                 str = result.getString("isim");
                 newFile.setFileName(str);
                 try {
@@ -80,64 +86,65 @@ public class MongoDb {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                
-                flag=true;
+
+                flag = true;
             }
-            if (result.getString("fileId",null)!=null) {
+            if (result.getString("fileId", null) != null) {
                 str = result.getString("fileId");
                 newFile.setId(str);
+            } else {
+                continue;
             }
-            else 
-                flag=false;
-            if (result.getString("klasorPath",null)!=null) {
+            if (result.getString("klasorPath", null) != null) {
                 str = result.getString("klasorPath");
                 newFile.setKlasorPath(str);
+            } else {
+                continue;
             }
-            else 
-                flag=false;
-            if (result.getString("kaydedenUser_username",null)!=null) {
+            if (result.getString("kaydedenUser_username", null) != null) {
                 str = result.getString("kaydedenUser_username");
                 newFile.setKaydedenKullaniciAdi(str);
+            } else {
+                continue;
             }
-            else 
-                flag=false;
-            if (result.getBoolean("sonuncu",false)!=false) {
-                sonuncuMu = result.getBoolean("sonuncu",false);
+            if (result.getBoolean("sonuncu", false) != false) {
+                sonuncuMu = result.getBoolean("sonuncu", false);
                 newFile.setSonuncuMu(sonuncuMu);
+            } else {
+                continue;
             }
-            else
-                flag=false;
-            
-            if (result.getString("table",null)!=null) {
+
+            if (result.getString("table", null) != null) {
                 str = result.getString("table");
                 newFile.setTable(str);
+            } else {
+                continue;
             }
-            else 
-                flag=false;
-            if (result.getInt("boyut",-1)!=-1) {
-                newFile.setBoyut(result.getInt("boyut",-1));
+            if (result.getInt("boyut", -1) != -1) {
+                newFile.setBoyut(result.getInt("boyut", -1));
+            } else {
+                continue;
             }
-            else 
-                flag=false;
-            if (result.getString("fileId",null)!=null) {
+            if (result.getString("fileId", null) != null) {
                 str = result.getString("fileId");
                 newFile.setFileId(str);
+            } else {
+                continue;
             }
-            else 
-                flag=false;
-            
-            if(flag){
+
+            if (flag) {
                 list.add(newFile);
-                flag=false;
+                flag = false;
             }
-                
+
         }
-        flag=true;
+        flag = true;
         return list;
     }
-    public InputStream getFileInputStream(String fileId, String table){
-        
-        InputStream input=null;
+
+    public InputStream getFileInputStream(String fileId, String table) {
+
+        InputStream input = null;
 
         BasicDBObject query = new BasicDBObject().append("_id", new ObjectId(fileId));
         GridFS gfs = new GridFS(db, table);
@@ -147,11 +154,12 @@ public class MongoDb {
         }
         return input;
     }
-    static String displayContentType(String pathText) throws Exception {
+
+    public static String displayContentType(String pathText) throws Exception {
         Path path = Paths.get(pathText);
         String type = Files.probeContentType(path);
         return type;
-  }
+    }
 
 
     public DB getDb() {
@@ -165,8 +173,5 @@ public class MongoDb {
     public void setCursorLimit(int cursorLimit) {
         this.cursorLimit = cursorLimit;
     }
-    
-    
-    
 
 }

@@ -19,6 +19,7 @@ import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.StreamedContent;
@@ -31,12 +32,17 @@ import org.primefaces.model.TreeNode;
 
 @ManagedBean
 @ApplicationScoped
-public class MongoDBService implements Serializable{
-    private List<File> files;
-    private File selectedFile;
+public class IndexBean implements Serializable{
+    
+    private List<FileModel> files;
+    private FileModel selectedFile;
+    private SdtpTreeNode root;
+    private SdtpTreeNode selectedNode;
     private boolean connected=false;
-    private TreeNode root;
-    private MongoDb mydb;
+    private MongoDbService mydb;
+    private String console;
+    private boolean check;
+    private SdtpService sdtpService;
      
     //@ManagedProperty("#{carService}")
     //private CarService service;
@@ -78,18 +84,33 @@ public class MongoDBService implements Serializable{
     public void init() {
         Set<String> collectionNameList = null;
         List<String> list = new ArrayList();
-        mydb=new MongoDb();
-        
+        mydb=new MongoDbService();
+        mydb.setCursorLimit(1500);
         files=new ArrayList<>();
-
-        root = new DefaultTreeNode("Root", null);
+        sdtpService=new SdtpService();
+        root = new SdtpTreeNode("Root", null);
+        addSdtpNodes();
     }
-    public StreamedContent getDownloadFile(File file){
+    private void addSdtpNodes(){
+        
+        List<JSdtpModel> list=sdtpService.getSdtp();
+        
+        if(list==null){
+            addMessage("Cannot Get SDTP Files");
+            return;
+        }
+        
+        for (JSdtpModel list1 : list) {
+            root.getChildren().add(new DefaultTreeNode(list1.getKonu()));
+        }
+
+    }
+    public StreamedContent getDownloadFile(FileModel file){
         InputStream input ;
         String str = null;
         try {
              input = mydb.getFileInputStream(file.getId(),file.getTable());
-             str = MongoDb.displayContentType(file.getFileName());
+             str = MongoDbService.displayContentType(file.getFileName());
         } catch (Exception e) {
             e.printStackTrace();
             addMessage("File cannot Download");
@@ -98,19 +119,28 @@ public class MongoDBService implements Serializable{
         return new DefaultStreamedContent(input, str, file.getFileName());
     }
     
+    public void onExpandNode(NodeExpandEvent event){
+        
+        
+        List<JSdtpModel> list=sdtpService.findSdtpWithId(selectedNode)
+        
+        
+        
+    }
+    
     
     
  
-    public List<File> getFiles() {
+    public List<FileModel> getFiles() {
         return files;
     }
  
-    public File getSelectedFile() {
+    public FileModel getSelectedFile() {
         return selectedFile;
     }
     
  
-    public void setSelectedFile(File selectedFile) {
+    public void setSelectedFile(FileModel selectedFile) {
         this.selectedFile = selectedFile;
     }
     public void save() {
@@ -125,9 +155,36 @@ public class MongoDBService implements Serializable{
         addMessage("Data deleted");
     }
 
-    public TreeNode getRoot() {
+    public SdtpTreeNode getSelectedNode() {
+        return selectedNode;
+    }
+
+    public void setSelectedNode(SdtpTreeNode selectedNode) {
+        this.selectedNode = selectedNode;
+    }
+
+    public SdtpTreeNode getRoot() {
         return root;
     }
+
+
+
+    public String getConsole() {
+        return console;
+    }
+
+    public void setConsole(String console) {
+        this.console = console;
+    }
+
+    public boolean isCheck() {
+        return check;
+    }
+
+    public void setCheck(boolean check) {
+        this.check = check;
+    }
+    
     
 
 }

@@ -12,7 +12,7 @@ import java.util.UUID;
  *
  * @author Omer
  */
-public class File {
+public class FileModel {
     
     private String id;
     private String klasorPath;
@@ -132,11 +132,11 @@ public class File {
     }
 
 
-    public File(){
+    public FileModel(){
         
     }
     
-    public File( String fileName ) {
+    public FileModel( String fileName ) {
         this.id = getRandomId();
         this.fileName = fileName;
     }
@@ -164,7 +164,7 @@ public class File {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final File other = (File) obj;
+        final FileModel other = (FileModel) obj;
         if ((this.id == null) ? (other.id != null) : !this.id.equals(other.id)) {
             return false;
         }
