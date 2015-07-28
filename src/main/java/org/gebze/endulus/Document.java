@@ -9,6 +9,6 @@ package org.gebze.endulus;
  *
  * @author pc
  */
-public class MongoDb {
+public class Document {
     
 }

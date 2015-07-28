@@ -25,88 +25,89 @@
                     height: auto;
                 }
             </style>
-            
         </h:head>
         <h:body>
             <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
             <p:dialog widgetVar="statusDialog" modal="false" draggable="false" closable="false" resizable="false" showHeader="false">
-                <p:graphicImage library="images" name="ajax-loader1.gif" />
+                <p:graphicImage library="images" name="ajax-loader1.gif" />                
+            </p:dialog>
+            <p:dialog header="File Info" widgetVar="fileDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <p:outputPanel id="fileDetail" style="text-align:center;">
+                    <p:panelGrid  columns="2" rendered="#{not empty indexBean.selectedFile}" columnClasses="label,value">
+                        <f:facet name="header">
+                            <p:graphicImage library="images" name="any.jpg"/> 
+                        </f:facet>
+                        <h:outputText value="Id:" />
+                        <h:outputText value="#{indexBean.selectedFile.id}" />
+                    </p:panelGrid>
+                </p:outputPanel>
             </p:dialog>
             <h:form id="form">
                 <h:outputStylesheet name="css/default.css" />
                 <p:growl id="messages" showDetail="true" />
+
                 <p:layout fullPage="true" class="ui-layout-unit">
-                    <p:layoutUnit position="north" collapseSize="10" class="ui-fith-size">
+                    <p:layoutUnit position="north" >
                         <p:toolbar >
                             <f:facet name="left">
-                                <p:menuButton value="Options">
-                                    <p:menuitem value="Test" actionListener="#{save}" update=":form:messages" icon="ui-icon-disk" />
-                                    <p:menuitem value="Test" actionListener="#{update}" update=":form:messages" icon="ui-icon-arrowrefresh-1-w" />
-                                    <p:menuitem value="test" actionListener="#{delete}" ajax="false" icon="ui-icon-close" />
-                                    <p:menuitem value="test" url="http://www.primefaces.org" icon="ui-icon-extlink" />
-                                </p:menuButton>
-                                <span class="ui-separator">
-                                    <span class="ui-icon ui-icon-grip-dotted-vertical" />
-                                </span>
-                                <p:commandButton type="button" value="Download" icon="ui-icon-arrowthick-1-s" />
-                                <span class="ui-separator">
-                                    <span class="ui-icon ui-icon-grip-dotted-vertical" />
-                                </span>
+                                <p:graphicImage style="height: 30px;width: 100px" library="images" name="gebzebel.png"/> 
+                                <p:commandButton type="button" value="Kaydet " icon="ui-icon-arrowthick-1-s" />
                             </f:facet>
-                            <f:facet name="right" >
-                                <p:commandButton type="button" title="Download" icon="ui-icon-circle-arrow-s" />
+                            <f:facet name="right" > 
+                                <p:inputText id="globalFilter"   placeholder="Kelime girin" value="#{getText1}"  />               
+                                <p:commandButton id = "search" actionListener="#{text1}" value="Search:"  ajax="false" />
                                 <span class="ui-separator">
                                     <span class="ui-icon ui-icon-grip-dotted-vertical" />
                                 </span>
-                                <p:commandButton type="button" title="Refresh" icon="ui-icon-arrowrefresh-1-w" />
-                                <p:commandButton type="button" title="Print" icon="ui-icon-print" />
-                                <span class="ui-separator">
-                                    <span class="ui-icon ui-icon-grip-dotted-vertical" />
-                                </span>
-                                <p:inputText id="globalFilter" placeholder="Enter keyword" value="#{getText1}" />
-                                <p:commandButton id = "search"  title="Search" icon="ui-icon-search" />
-                           
                                 <p:commandButton id="advSearch" value="Search..." type="button" icon="ui-icon-triangle-1-s" />
-                                
-                              
                                 <span class="ui-separator">
                                     <span class="ui-icon ui-icon-grip-dotted-vertical" />
                                 </span>
-                                <p:commandButton value = "Connect to DB" id="connectDB" actionListener="#{mongoDBService.buttonConnectDb}" ajax="false" update=":form:messages" styleClass="ui-priority-primary" />
-                                <p:commandButton value="Log out" ajax="false" id="ajax" update="growl" actionListener="#{mongoDBService.buttonDownload}" styleClass="ui-priority-primary" />
+                                <p:commandButton value = "Connect to DB" id="connectDB" actionListener="#{indexBean.buttonConnectDb}" ajax="false" update=":form:messages" styleClass="ui-priority-primary" />   
+                                <p:commandButton value="Log out"  ajax="false" id="ajax" update="growl" actionListener="#{indexBean.buttonDownload}" styleClass="ui-priority-primary" />
                             </f:facet>
                         </p:toolbar>
                     </p:layoutUnit>
-           
-                    <p:layoutUnit position="west" >                  
-                        <p:panel id="panel1" header="Endulus - Tree">
-                           <p:growl id="growl1" showSummary="true" showDetail="true" autoUpdate="true"/>
-
-                           <p:tree id="tree1" value="#{mongoDBService.files}"
-                                   var="file"
-                                   selectionMode="single"
-                                   selection="#{mongoDBService.selectedFile}"
-                                   >
+                    <p:layoutUnit position="west" >
+                        <f:facet name="header">
+                            Klasörler
+                        </f:facet>
+                        <p:tree id="tree" value="#{indexBean.root}"
+                                var="klasor"
+                                dynamic="true"
+                                selection="#{indexBean.selectedNode}"
+                                selectionMode="single"
+                                
+                                >
                             
-                           </p:tree>
-                       </p:panel>                         
-                   </p:layoutUnit>
-              
-                    <p:dialog header="File Info" widgetVar="fileDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
-                        <p:outputPanel id="fileDetail" style="text-align:center;">
-                            <p:panelGrid columns="2" rendered="#{not empty mongoDBService.selectedFile}" columnClasses="label,value">
-                                <f:facet name="header">
-                                    <p:graphicImage library="images" name="any.jpg"/>
-                                </f:facet>
-                                <h:outputText value="Id:" />
-                                <h:outputText value="#{mongoDBService.selectedFile.id}" />
-                            </p:panelGrid>
-                        </p:outputPanel>
-                    </p:dialog>
+                            <p:ajax event="select" listener="#{indexBean.onNodeSelect}" update=":form:tree"/>
+                            <p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">
+                                <h:outputText value="#{klasor}" />
+                            </p:treeNode>
+                        </p:tree>
+                        
+                    </p:layoutUnit>
                     <p:layoutUnit position="center">
-                        <p:overlayPanel id="moviePanel" for="advSearch" hideEffect="fade" dynamic="true" style="width:370px; position: fixed">
+                        <p:dataGrid var="file" value="#{indexBean.files}">
+                            <f:facet name="header">
+                                Files
+                            </f:facet>
+                            <h:panelGrid>
+                                <p:row>
+                                    <p:column>
+                                        <p:commandLink ajax="false" >
+                                            <p:graphicImage style="height: 20px;width: 20px" library="images" name="any.jpg"/> 
+                                            <h:outputText value="#{file.fileName}" />
+                                            <p:fileDownload value="#{indexBean.getDownloadFile(file)}" />
+                                        </p:commandLink>
+                                    </p:column>
+                                </p:row>
+                            </h:panelGrid>
+                        </p:dataGrid>
+                    </p:layoutUnit>
+                    <p:overlayPanel id="moviePanel" for="advSearch" hideEffect="fade" dynamic="true" style="width:370px; position: fixed">
                             <h:panelGrid columns="2" columnClasses="column" cellpadding="3">
-                               <f:facet name="header">
+                                <f:facet name="header">
                                     <p:row>
                                         <p:column colspan="2">Gelişmiş Arama</p:column>
                                     </p:row>
@@ -114,9 +115,9 @@
                                 <h:outputText value="Dosya İsmi:" />
                                 <p:inputText/>
                                 <h:outputText value="Sadece son versiyon:" />
-                                <p:selectBooleanCheckbox value="#{selectSearch.value1}"/>
+                                <p:selectBooleanCheckbox value="#{indexBean.check}"/>
                                 <p:outputLabel for="dosyaTuru" value="Dosya türü:" />
-                                <p:selectOneMenu id="dosyaTuru" value="#{selectSearch.console}" style="width:100px">
+                                <p:selectOneMenu id="dosyaTuru" value="#{indexBean.console}" style="width:100px">
                                     <f:selectItem itemLabel="hepsi" itemValue="hepsi" />
                                     <f:selectItem itemLabel=".pdf" itemValue="pdf" />
                                     <f:selectItem itemLabel=".doc" itemValue="doc" />
@@ -136,44 +137,8 @@
                                 <p:commandButton value="Ara" style="width: 180px " oncomplete="PF('dlg').show()" icon="ui-icon-search"  />
                             </h:panelGrid>
                         </p:overlayPanel>
-                     
-                        <p:dataGrid var="file" value="#{mongoDBService.files}">
-                            <f:facet name="header">
-                                Files
-                            </f:facet>
-                            <p:panel style="text-align:center" >
-                                <h:panelGrid  style="text-align: right">
-                                    <p:row>
-                                        <p:column rowspan="10" style="font-weight: bold;">
-                                            <p:graphicImage style="height: 20px; width: 20px" library="images" name="any.jpg"/>
-                                        </p:column>
-                                        
-                                        <p:column style="font-weight: bold;">
-                                            <p:row>
-                                           
-                                            <p:commandLink update=":form:fileDetail" oncomplete="PF('fileDialog').show()" title="View Detail">
-                                                <h:outputText value="#{file.fileName}" />
-                                                    <f:setPropertyActionListener value="#{file}" target="#{mongoDBService.selectedFile}" />
-                                            </p:commandLink> 
-                                            </p:row>
-                                        </p:column>    
-                                      
-                                    </p:row>
-                                       
-                                </h:panelGrid>
-                            </p:panel>
-                        </p:dataGrid>
-                    </p:layoutUnit>
                 </p:layout>
             </h:form>
-       
-        
-        
-        
-     
         </h:body>
     </f:view>
 </html>
-
-
-
