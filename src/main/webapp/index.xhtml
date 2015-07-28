@@ -97,7 +97,7 @@
                                 
                                 >
                             
-                            <p:ajax event="expand" listener="#{indexBean.onExpandNode}"/>>
+                            <p:ajax event="select" listener="#{indexBean.onNodeSelect}" update=":form:tree"/>
                             <p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">
                                 <h:outputText value="#{klasor}" />
                             </p:treeNode>

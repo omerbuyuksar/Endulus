@@ -15,6 +15,7 @@ import org.primefaces.model.TreeNode;
 public class SdtpTreeNode extends DefaultTreeNode {
     
     private JSdtpModel sdtpmodel;
+    private boolean opened=false;
 
     public JSdtpModel getSdtpmodel() {
         return sdtpmodel;
@@ -24,6 +25,7 @@ public class SdtpTreeNode extends DefaultTreeNode {
         this.sdtpmodel = sdtpmodel;
     }
 
+
     public SdtpTreeNode(String type, Object data, TreeNode parent) {
         super(type, data, parent);
     }
@@ -31,4 +33,19 @@ public class SdtpTreeNode extends DefaultTreeNode {
     public SdtpTreeNode(Object data, TreeNode parent) {
         super(data, parent);
     }  
+
+    public SdtpTreeNode(JSdtpModel sdtpmodel,Object data) {
+        super(data);
+        this.sdtpmodel = sdtpmodel;
+    }
+
+    public boolean isOpened() {
+        return opened;
+    }
+
+    public void setOpened(boolean opened) {
+        this.opened = opened;
+    }
+    
+    
 }
