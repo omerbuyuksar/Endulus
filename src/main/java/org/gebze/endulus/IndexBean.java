@@ -122,21 +122,6 @@ public class IndexBean implements Serializable {
         return new DefaultStreamedContent(input, str, file.getFileName());
     }
 
-    public void onNodeExpand(NodeExpandEvent event) {
-
-        addMessage("onexpanda");
-        List<JSdtpModel> list;
-        list = sdtpService.findSdtpWithId("" + selectedNode.getSdtpmodel().getId());
-
-        if (list == null) {
-            addMessage("Cannot Get SDTP Files");
-            return;
-        }
-        for (JSdtpModel list1 : list) {
-            selectedNode.getChildren().add(new SdtpTreeNode(list1, list1.getKonu()));
-        }
-
-    }
 
     public void onNodeSelect(NodeSelectEvent event) {
 
@@ -155,20 +140,6 @@ public class IndexBean implements Serializable {
         selectedNode.setOpened(true);
     }
 
-    public void onNodeCollapse(NodeCollapseEvent event) {
-
-        addMessage("onexpanda");
-        List<JSdtpModel> list;
-        list = sdtpService.findSdtpWithId("" + selectedNode.getSdtpmodel().getId());
-
-        if (list == null) {
-            addMessage("Cannot Get SDTP Files");
-            return;
-        }
-        for (JSdtpModel list1 : list) {
-            selectedNode.getChildren().add(new SdtpTreeNode(list1, list1.getKonu()));
-        }
-    }
 
     public List<FileModel> getFiles() {
         return files;
