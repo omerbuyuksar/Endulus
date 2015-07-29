@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.ws.rs.core.MediaType;
 import org.bson.types.ObjectId;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -62,6 +63,23 @@ public class MongoDbService {
         connected = true;
         return database;
     }
+    
+    public List<FileModel> getFilesAdvanced(String collectionName,BasicDBObject obj){
+        FileModel model;
+        List<FileModel> list = new ArrayList<>();
+        DBCollection coll = db.getCollection(collectionName);
+        DBCursor cursor = coll.find(obj);
+        cursor = cursor.limit(cursorLimit);
+        while (cursor.hasNext()) {
+            BasicDBObject result = (BasicDBObject) cursor.next();
+            model = BasicDBObjectToFileModel(result);
+            if (model != null) {
+                list.add(model);
+            }
+        }
+        return list;
+
+    }
 
     public List<FileModel> getAllFiles(String collectionName) {
         FileModel model;
@@ -80,22 +98,9 @@ public class MongoDbService {
         return list;
     }
     public List<FileModel> getFilesByName(String collectionName,String fileName){
-        FileModel model;
-        List<FileModel> list = new ArrayList<>();
-        DBCollection coll = db.getCollection(collectionName);
         
-        DBCursor  cursor = coll.find();
-        cursor= cursor.limit(cursorLimit);
-        while (cursor.hasNext()) {
-            BasicDBObject result = (BasicDBObject) cursor.next();
-            model=BasicDBObjectToFileModel(result);
-            if (model!=null) {
-                list.add(model);
-            }
-        }
-        return list;
-        
-        
+        BasicDBObject obj = new BasicDBObject().append("isim", Pattern.compile(fileName, Pattern.CASE_INSENSITIVE));
+        return getFilesAdvanced(collectionName,obj);
     }
 
     private FileModel BasicDBObjectToFileModel(BasicDBObject result) {

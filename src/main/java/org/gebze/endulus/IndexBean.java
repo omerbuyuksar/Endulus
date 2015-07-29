@@ -5,6 +5,7 @@
  */
 package org.gebze.endulus;
 
+import com.mongodb.BasicDBObject;
 import java.io.InputStream;
 import java.util.List;
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ApplicationScoped;
@@ -43,8 +45,16 @@ public class IndexBean implements Serializable {
     private boolean connected = false;
     private MongoDbService mydb;
     private String console;
-    private boolean check;
+    
     private SdtpService sdtpService;
+    private String searchText;
+    private String searchDosyaIsmi;
+    private String searchKonusu;
+    private String searchKodu;
+    private boolean searchSonmuTik;
+    private String searchDosyaturu;
+    private String searchKaydedenKullanici;
+    private String searchTablo;
 
 
     public int buttonConnectDb() {
@@ -90,6 +100,34 @@ public class IndexBean implements Serializable {
         sdtpService = new SdtpService();
         root = new DefaultTreeNode("Root", null);
         addSdtpNodes();
+    }
+    
+    public void searchByName(){
+        if(!connected){
+            addMessage("Connect DB First");
+            return;
+        }
+        files = mydb.getFilesByName("veriler", getSearchText());
+        addMessage(""+files.size()+" Files Found");
+    }
+    public void searchAdvanced(){
+        if(!connected){
+            addMessage("Connect DB First");
+            return;
+        }
+        files = mydb.getFilesAdvanced("veriler", getAdvancedSearchValues());
+        addMessage(""+files.size()+" Files Found");
+    }
+    public BasicDBObject getAdvancedSearchValues(){
+         BasicDBObject obj=new BasicDBObject();
+         
+         obj.append("isim", Pattern.compile(getSearchDosyaIsmi(), Pattern.CASE_INSENSITIVE));
+         obj.append("kaydedenUser_username", Pattern.compile(getSearchKaydedenKullanici(), Pattern.CASE_INSENSITIVE));
+         obj.append("sonuncu", isSearchSonmuTik());
+         obj.append("table", Pattern.compile(getSearchTablo(), Pattern.CASE_INSENSITIVE));
+         obj.append("klasorPath", Pattern.compile(getSearchKodu(), Pattern.CASE_INSENSITIVE));
+         
+         return obj;
     }
 
     private void addSdtpNodes() {
@@ -185,12 +223,71 @@ public class IndexBean implements Serializable {
         this.console = console;
     }
 
-    public boolean isCheck() {
-        return check;
+    public String getSearchText() {
+        return searchText;
     }
 
-    public void setCheck(boolean check) {
-        this.check = check;
+    public void setSearchText(String searchText) {
+        this.searchText = searchText;
     }
+
+    public String getSearchKonusu() {
+        return searchKonusu;
+    }
+
+    public void setSearchKonusu(String searchKonusu) {
+        this.searchKonusu = searchKonusu;
+    }
+
+    public String getSearchKodu() {
+        return searchKodu;
+    }
+
+    public void setSearchKodu(String searchKodu) {
+        this.searchKodu = searchKodu;
+    }
+
+    public boolean isSearchSonmuTik() {
+        return searchSonmuTik;
+    }
+
+    public void setSearchSonmuTik(boolean searchSonmuTik) {
+        this.searchSonmuTik = searchSonmuTik;
+    }
+
+    public String getSearchDosyaturu() {
+        return searchDosyaturu;
+    }
+
+    public void setSearchDosyaturu(String searchDosyaturu) {
+        this.searchDosyaturu = searchDosyaturu;
+    }
+
+    public String getSearchKaydedenKullanici() {
+        return searchKaydedenKullanici;
+    }
+
+    public void setSearchKaydedenKullanici(String searchKaydedenKullanici) {
+        this.searchKaydedenKullanici = searchKaydedenKullanici;
+    }
+
+    public String getSearchTablo() {
+        return searchTablo;
+    }
+
+    public void setSearchTablo(String searchTablo) {
+        this.searchTablo = searchTablo;
+    }
+
+    public String getSearchDosyaIsmi() {
+        return searchDosyaIsmi;
+    }
+
+    public void setSearchDosyaIsmi(String searchDosyaIsmi) {
+        this.searchDosyaIsmi = searchDosyaIsmi;
+    }
+    
+    
+    
 
 }
