@@ -81,7 +81,7 @@
                                     <span class="ui-icon ui-icon-grip-dotted-vertical" />
                                 </span>
                                 <p:commandButton value = "Connect to DB" id="connectDB" actionListener="#{indexBean.buttonConnectDb}" ajax="false" update=":form:messages" styleClass="ui-priority-primary" />   
-                                <p:commandButton value="Log out"  ajax="false" id="ajax" update="growl" actionListener="#{indexBean.buttonDownload}" styleClass="ui-priority-primary" />
+                                <p:commandButton value="Log out"  ajax="false" id="ajax" update="growl" actionListener="#{indexBean.buttonLogout}" styleClass="ui-priority-primary" />
                             </f:facet>
                         </p:toolbar>
                     </p:layoutUnit>
@@ -94,9 +94,9 @@
                                 dynamic="true"
                                 selection="#{indexBean.selectedNode}"
                                 selectionMode="single"
-                                
+
                                 >
-                            
+
                             <p:ajax event="select" listener="#{indexBean.onNodeSelect}" update=":form:tree"/>
                             <p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">
                                 <h:outputText value="#{klasor}" />

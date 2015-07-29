@@ -46,8 +46,7 @@ public class IndexBean implements Serializable {
     private boolean check;
     private SdtpService sdtpService;
 
-    //@ManagedProperty("#{carService}")
-    //private CarService service;
+
     public int buttonConnectDb() {
         try {
             mydb.connectToMongoDB("mydb", 27017, "192.168.77.25", "nico", "nico");
@@ -61,12 +60,12 @@ public class IndexBean implements Serializable {
         return 0;
     }
 
-    public int buttonDownload() {
+    public int buttonLogout() {
         try {
 
-            addMessage("Connected");
+            addMessage("Log out");
         } catch (Exception e) {
-            addMessage("Connection Failed");
+            addMessage("Log out Failed");
         }
 
         return 0;
@@ -128,6 +127,7 @@ public class IndexBean implements Serializable {
         if(selectedNode.isOpened())
             return;
         List<JSdtpModel> list;
+        //sdtp turu bakılcak
         list = sdtpService.findSdtpWithId("" + selectedNode.getSdtpmodel().getId());
 
         if (list == null) {

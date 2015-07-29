@@ -64,82 +64,98 @@ public class MongoDbService {
     }
 
     public List<FileModel> getAllFiles(String collectionName) {
-        String str = null;
-        FileModel newFile;
-        boolean sonuncuMu;
-        boolean flag = false;
+        FileModel model;
         List<FileModel> list = new ArrayList<>();
         DBCollection coll = db.getCollection(collectionName);
         
         DBCursor  cursor = coll.find();
         cursor= cursor.limit(cursorLimit);
-        
         while (cursor.hasNext()) {
             BasicDBObject result = (BasicDBObject) cursor.next();
-            newFile = new FileModel();
-            flag = false;
-            if (result.getString("isim", null) != null) {
-                str = result.getString("isim");
-                newFile.setFileName(str);
-                try {
-                    newFile.setDosyaTuru(displayContentType(str));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                flag = true;
+            model=BasicDBObjectToFileModel(result);
+            if (model!=null) {
+                list.add(model);
             }
-            if (result.getString("fileId", null) != null) {
-                str = result.getString("fileId");
-                newFile.setId(str);
-            } else {
-                continue;
-            }
-            if (result.getString("klasorPath", null) != null) {
-                str = result.getString("klasorPath");
-                newFile.setKlasorPath(str);
-            } else {
-                continue;
-            }
-            if (result.getString("kaydedenUser_username", null) != null) {
-                str = result.getString("kaydedenUser_username");
-                newFile.setKaydedenKullaniciAdi(str);
-            } else {
-                continue;
-            }
-            if (result.getBoolean("sonuncu", false) != false) {
-                sonuncuMu = result.getBoolean("sonuncu", false);
-                newFile.setSonuncuMu(sonuncuMu);
-            } else {
-                continue;
-            }
-
-            if (result.getString("table", null) != null) {
-                str = result.getString("table");
-                newFile.setTable(str);
-            } else {
-                continue;
-            }
-            if (result.getInt("boyut", -1) != -1) {
-                newFile.setBoyut(result.getInt("boyut", -1));
-            } else {
-                continue;
-            }
-            if (result.getString("fileId", null) != null) {
-                str = result.getString("fileId");
-                newFile.setFileId(str);
-            } else {
-                continue;
-            }
-
-            if (flag) {
-                list.add(newFile);
-                flag = false;
-            }
-
         }
-        flag = true;
         return list;
+    }
+    public List<FileModel> getFilesByName(String collectionName,String fileName){
+        FileModel model;
+        List<FileModel> list = new ArrayList<>();
+        DBCollection coll = db.getCollection(collectionName);
+        
+        DBCursor  cursor = coll.find();
+        cursor= cursor.limit(cursorLimit);
+        while (cursor.hasNext()) {
+            BasicDBObject result = (BasicDBObject) cursor.next();
+            model=BasicDBObjectToFileModel(result);
+            if (model!=null) {
+                list.add(model);
+            }
+        }
+        return list;
+        
+        
+    }
+
+    private FileModel BasicDBObjectToFileModel(BasicDBObject result) {
+        FileModel newFile = new FileModel();
+        boolean sonuncuMu;
+        String str;
+        if (result.getString("isim", null) != null) {
+            str = result.getString("isim");
+            newFile.setFileName(str);
+            try {
+                newFile.setDosyaTuru(displayContentType(str));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else
+            return null;
+        if (result.getString("fileId", null) != null) {
+            str = result.getString("fileId");
+            newFile.setId(str);
+        } else {
+            return null;
+        }
+        if (result.getString("klasorPath", null) != null) {
+            str = result.getString("klasorPath");
+            newFile.setKlasorPath(str);
+        } else {
+            return null;
+        }
+        if (result.getString("kaydedenUser_username", null) != null) {
+            str = result.getString("kaydedenUser_username");
+            newFile.setKaydedenKullaniciAdi(str);
+        } else {
+            return null;
+        }
+        if (result.getBoolean("sonuncu", false) != false) {
+            sonuncuMu = result.getBoolean("sonuncu", false);
+            newFile.setSonuncuMu(sonuncuMu);
+        } else {
+            return null;
+        }
+
+        if (result.getString("table", null) != null) {
+            str = result.getString("table");
+            newFile.setTable(str);
+        } else {
+            return null;
+        }
+        if (result.getInt("boyut", -1) != -1) {
+            newFile.setBoyut(result.getInt("boyut", -1));
+        } else {
+            return null;
+        }
+        if (result.getString("fileId", null) != null) {
+            str = result.getString("fileId");
+            newFile.setFileId(str);
+        } else {
+            return null;
+        }
+        return newFile;
     }
 
     public InputStream getFileInputStream(String fileId, String table) {
