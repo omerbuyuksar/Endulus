@@ -27,7 +27,10 @@ import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import org.primefaces.context.RequestContext;
+import org.primefaces.event.SelectEvent;
 /**
  *
  * @author Ömer
@@ -43,8 +46,11 @@ public class IndexBean implements Serializable {
     private boolean connected = false;
     private MongoDbService mydb;
     private String console;
-    private boolean check;
+    private boolean check = true;
     private SdtpService sdtpService;
+    private Date firstDate;
+    private Date lastDate;    
+
 
     //@ManagedProperty("#{carService}")
     //private CarService service;
@@ -221,5 +227,33 @@ public class IndexBean implements Serializable {
     public void setCheck(boolean check) {
         this.check = check;
     }
-
+    
+    
+    public void onDateSelect(SelectEvent event) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Date Selected", format.format(event.getObject())));
+    }
+     
+    public void click() {
+        RequestContext requestContext = RequestContext.getCurrentInstance();
+         
+        requestContext.update("form:display");
+        requestContext.execute("PF('dlg').show()");
+    }
+ 
+    public Date getFirstDate() {
+        return firstDate;
+    }
+    public void setFirstDate(Date firstDate) {
+        this.firstDate = firstDate;
+    }
+ 
+    public Date getlastDate() {
+        return lastDate;
+    }
+    public void setlastDate(Date lastDate) {
+        this.lastDate = lastDate;
+    }
+    
 }

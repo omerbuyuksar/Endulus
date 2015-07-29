@@ -98,29 +98,52 @@
                             <h:panelGrid>
                                 <p:row>
                                     <p:column>
-                                        <p:commandLink ajax="false" >
+                                        <p:commandLink id="fileName" ajax="true" >
                                             <p:graphicImage style="height: 20px;width: 20px" library="images" name="pdf.jpg"/> 
                                             <h:outputText value="#{file.fileName}" />
-                                            
-                                            <p:fileDownload value="#{indexBean.getDownloadFile(file)}" />
-                                        </p:commandLink>
+                                        </p:commandLink>     
+                                        
+                                        <p:overlayPanel id="fileDetail" for="fileName" hideEffect="fade" dynamic="true" showCloseIcon="true" style="position: fixed">
+                                            <h:panelGrid columns="2" columnClasses="column"   cellpadding="0" cellspacing="0" border="1" >
+                                                <h:outputText value="Dosya ismi :" />
+                                                <h:outputText value="#{file.fileName}" />
+                                                <h:outputText value="Dosya boyutu :" />
+                                                <h:outputText value="#{file.boyut} kb" />
+                                                <h:outputText value="Dosya türü :" />
+                                                <h:outputText value="#{file.dosyaTuru}" /> 
+                                                <h:outputText value="Kaydeden kişi :" />
+                                                <h:outputText value="#{file.kaydedenKullaniciAdi}" />
+
+                                                <h:outputText value="Bulunduğu tablo :" />
+                                                <h:outputText value="#{file.table}" />
+                                                <h:outputText value="Dosya ID :" />
+                                                <h:outputText value="#{file.id}" />
+                                                <h:outputText value="" />
+                                                <p:commandButton  ajax="treu" value="Dosyayı kaydet">                                                    
+                                                    <p:fileDownload value="#{indexBean.getDownloadFile(file)}" />
+                                                </p:commandButton>                                            
+                                            </h:panelGrid>
+                                        </p:overlayPanel>
                                     </p:column>
                                 </p:row>
                             </h:panelGrid>
                         </p:dataGrid>
-                    </p:layoutUnit>
-                    <p:overlayPanel id="moviePanel" for="advSearch" hideEffect="fade" dynamic="true" style="width:370px; position: fixed">
-                            <h:panelGrid columns="2" columnClasses="column" cellpadding="3">
+    
+             
+                    </p:layoutUnit> 
+                    
+                    <p:overlayPanel id="searchPanel" for="advSearch" hideEffect="fade" style="width:370px; position: fixed">
+                            <h:panelGrid columns="2" columnClasses="column" cellpadding="1">
                                 <f:facet name="header">
                                     <p:row>
                                         <p:column colspan="2">Gelişmiş Arama</p:column>
                                     </p:row>
                                 </f:facet>
-                                <h:outputText value="Dosya İsmi:" />
+                                <h:outputText value="Dosya İsmi :" />
                                 <p:inputText/>
-                                <h:outputText value="Sadece son versiyon:" />
+                                <h:outputText value="Sadece son versiyon :" />
                                 <p:selectBooleanCheckbox value="#{indexBean.check}"/>
-                                <p:outputLabel for="dosyaTuru" value="Dosya türü:" />
+                                <p:outputLabel for="dosyaTuru" value="Dosya türü :" />
                                 <p:selectOneMenu id="dosyaTuru" value="#{indexBean.console}" style="width:100px">
                                     <f:selectItem itemLabel="hepsi" itemValue="hepsi" />
                                     <f:selectItem itemLabel=".pdf" itemValue="pdf" />
@@ -129,18 +152,23 @@
                                     <f:selectItem itemLabel=".jpeg" itemValue="jpeg" />
                                     <f:selectItem itemLabel=".png" itemValue="png" />
                                 </p:selectOneMenu>
-                                <h:outputText value="Kaydeden kullanıcı" />
+                                <p:outputLabel  for="firstDate" value="Yüklenme tarihi :" />                        
+                                <p:calendar id="firstDate" value="#{indexBean.firstDate}"  navigator="true" pattern="yyyy-MM-dd"  />
+                                <h:outputLabel value="" for="lastDate"/>
+                                <p:calendar id="lastDate" value="#{indexBean.lastDate}"  navigator="true" pattern="yyyy-MM-dd" />
+                                <h:outputText value="Kaydeden kişi :" />
                                 <p:inputText/>
-                                <h:outputText value="Tablo adı" />
+                                <h:outputText value="Tablo adı :" />
                                 <p:inputText/>
-                                <h:outputText value="STTP kodu " />
+                                <h:outputText value="SDTP kodu :" />
                                 <p:inputText/>
-                                <h:outputText value="STTP konusu " />
-                                <p:inputText/> 
+                                <h:outputText value="SDTP konusu :" />
+                                <p:inputText/>
                                 <h:outputText value="" />
                                 <p:commandButton value="Ara" style="width: 180px " oncomplete="PF('dlg').show()" icon="ui-icon-search"  />
                             </h:panelGrid>
                         </p:overlayPanel>
+                    
                 </p:layout>
             </h:form>
         </h:body>
