@@ -50,21 +50,24 @@
                     <p:layoutUnit position="north" >
                         <p:toolbar >
                             <f:facet name="left">
-                                <p:graphicImage style="height: 30px;width: 100px" library="images" name="gebzebel.png"/> 
-                                <p:commandButton type="button" value="Kaydet " icon="ui-icon-arrowthick-1-s" />
+                                <p:graphicImage style="height: 25px;width: 100px" library="images" name="gebze_bel_logo.png"/> 
                             </f:facet>
                             <f:facet name="right" > 
+                                <p:commandButton type="button" value="Kaydet " icon="ui-icon-arrowthick-1-s" />                                
+                                <span class="ui-separator">
+                                    <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                                </span>
                                 <p:inputText id="globalFilter"   placeholder="Kelime girin" value="#{getText1}"  />               
-                                <p:commandButton id = "search" actionListener="#{text1}" value="Search:"  ajax="false" />
+                                <p:commandButton id = "search" actionListener="#{text1}" title="Search:"  ajax="false" icon="ui-icon-search" />
                                 <span class="ui-separator">
                                     <span class="ui-icon ui-icon-grip-dotted-vertical" />
                                 </span>
-                                <p:commandButton id="advSearch" value="Search..." type="button" icon="ui-icon-triangle-1-s" />
+                                <p:commandButton id="advSearch" value="Ara..." type="button" icon="ui-icon-triangle-1-s" />
                                 <span class="ui-separator">
                                     <span class="ui-icon ui-icon-grip-dotted-vertical" />
                                 </span>
-                                <p:commandButton value = "Connect to DB" id="connectDB" actionListener="#{indexBean.buttonConnectDb}" ajax="false" update=":form:messages" styleClass="ui-priority-primary" />   
-                                <p:commandButton value="Log out"  ajax="false" id="ajax" update="growl" actionListener="#{indexBean.buttonDownload}" styleClass="ui-priority-primary" />
+                                <p:commandButton value = " Bağlan " id="connectDB" actionListener="#{indexBean.buttonConnectDb}" ajax="false" update=":form:messages" styleClass="ui-priority-primary" />   
+                                <p:commandButton value="Çıkış"  ajax="false" id="ajax" update="growl" actionListener="#{indexBean.buttonDownload}" styleClass="ui-priority-primary" />
                             </f:facet>
                         </p:toolbar>
                     </p:layoutUnit>
@@ -90,14 +93,15 @@
                     <p:layoutUnit position="center">
                         <p:dataGrid var="file" value="#{indexBean.files}">
                             <f:facet name="header">
-                                Files
+                                Dosyalar
                             </f:facet>
                             <h:panelGrid>
                                 <p:row>
                                     <p:column>
                                         <p:commandLink ajax="false" >
-                                            <p:graphicImage style="height: 20px;width: 20px" library="images" name="any.jpg"/> 
+                                            <p:graphicImage style="height: 20px;width: 20px" library="images" name="pdf.jpg"/> 
                                             <h:outputText value="#{file.fileName}" />
+                                            
                                             <p:fileDownload value="#{indexBean.getDownloadFile(file)}" />
                                         </p:commandLink>
                                     </p:column>
