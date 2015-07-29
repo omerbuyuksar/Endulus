@@ -102,6 +102,11 @@ public class MongoDbService {
         BasicDBObject obj = new BasicDBObject().append("isim", Pattern.compile(fileName, Pattern.CASE_INSENSITIVE));
         return getFilesAdvanced(collectionName,obj);
     }
+    public List<FileModel> getFilesByDizinId(String collectionName,int id){
+        
+        BasicDBObject obj = new BasicDBObject().append("dizin_id", id);
+        return getFilesAdvanced(collectionName,obj);
+    }
 
     private FileModel BasicDBObjectToFileModel(BasicDBObject result) {
         FileModel newFile = new FileModel();
@@ -195,4 +200,12 @@ public class MongoDbService {
         this.cursorLimit = cursorLimit;
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+    
 }

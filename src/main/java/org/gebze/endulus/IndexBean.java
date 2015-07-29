@@ -119,15 +119,24 @@ public class IndexBean implements Serializable {
         addMessage(""+files.size()+" Files Found");
     }
     public BasicDBObject getAdvancedSearchValues(){
-         BasicDBObject obj=new BasicDBObject();
-         
-         obj.append("isim", Pattern.compile(getSearchDosyaIsmi(), Pattern.CASE_INSENSITIVE));
-         obj.append("kaydedenUser_username", Pattern.compile(getSearchKaydedenKullanici(), Pattern.CASE_INSENSITIVE));
-         obj.append("sonuncu", isSearchSonmuTik());
-         obj.append("table", Pattern.compile(getSearchTablo(), Pattern.CASE_INSENSITIVE));
-         obj.append("klasorPath", Pattern.compile(getSearchKodu(), Pattern.CASE_INSENSITIVE));
-         
-         return obj;
+         BasicDBObject obj = new BasicDBObject();
+
+        obj.append("isim", Pattern.compile(getSearchDosyaIsmi(), Pattern.CASE_INSENSITIVE));
+        obj.append("kaydedenUser_username", Pattern.compile(getSearchKaydedenKullanici(), Pattern.CASE_INSENSITIVE));
+        if (!getSearchDosyaturu().contentEquals("ALL")) {
+            obj.append("dosyaTuru", Pattern.compile(getSearchDosyaturu(), Pattern.CASE_INSENSITIVE));
+        }
+        if (isSearchSonmuTik()) {
+            obj.append("sonuncu", isSearchSonmuTik());
+        }
+        obj.append("table", Pattern.compile(getSearchTablo(), Pattern.CASE_INSENSITIVE));
+        obj.append("klasorPath", Pattern.compile(getSearchKodu(), Pattern.CASE_INSENSITIVE));
+        List<JSdtpModel> list = sdtpService.findWithKonu(getSearchKonusu());
+        for (JSdtpModel list1 : list) {
+            obj.append("klasorPath", Pattern.compile("" + list1.getStdpKodu(), Pattern.CASE_INSENSITIVE));
+        }
+
+        return obj;
     }
 
     private void addSdtpNodes() {
@@ -136,6 +145,7 @@ public class IndexBean implements Serializable {
 
         if (list == null) {
             addMessage("Cannot Get SDTP Files");
+            
             return;
         }
 
@@ -165,17 +175,56 @@ public class IndexBean implements Serializable {
         if(selectedNode.isOpened())
             return;
         List<JSdtpModel> list;
+        List<Long> llist;
         //sdtp turu bakılcak
-        list = sdtpService.findSdtpWithId("" + selectedNode.getSdtpmodel().getId());
+        if(selectedNode.getSdtpmodel().getSdtpTuru() != 2){
+            System.out.println(""+selectedNode.getSdtpmodel().getSdtpTuru()+"  "+selectedNode.getSdtpmodel().getStdpKodu());
+            list = sdtpService.findSdtpWithId("" + selectedNode.getSdtpmodel().getId());
 
-        if (list == null) {
-            addMessage("Cannot Get SDTP Files");
-            return;
+            if (list == null) {
+                addMessage("Cannot Get SDTP Files");
+                return;
+            }
+            for (JSdtpModel list1 : list) {
+                selectedNode.getChildren().add(new SdtpTreeNode(list1, list1.getKonu()));
+            }
+            selectedNode.setOpened(true);
+        } else {
+            System.out.println(""+selectedNode.getSdtpmodel().getSdtpTuru()+"  "+selectedNode.getSdtpmodel().getStdpKodu());
+            llist = sdtpService.getEbysDizin("" + selectedNode.getSdtpmodel().getId());
+            if(llist==null){
+                addMessage("Cannot Get SDTP Files");
+                return;
+            }
+            List<FileModel> modelList;
+            files.clear();
+            if (!mydb.isConnected()) {
+                try {
+                    mydb.connectToMongoDB("mydb", 27017, "192.168.77.25", "nico", "nico");
+                    connected = true;
+                } catch (UnknownHostException ex) {
+                    Logger.getLogger(IndexBean.class.getName()).log(Level.SEVERE, null, ex);
+                    addMessage("Cannot Connect to DB");
+                }
+            }
+            for (int i = 0; i < llist.size(); ++i) {
+
+                modelList = mydb.getFilesByDizinId("veriler", llist.get(i).intValue());
+                for (int j = 0; j < modelList.size(); j++) {
+                    files.add(modelList.get(i));
+                }
+            }
+            for (FileModel file : files) {
+                String str;
+                str = file.getKlasorPath();
+                String kodu=selectedNode.getSdtpmodel().getStdpKodu().replace('.', '/');      
+                str=str.replaceFirst(kodu, "");
+                selectedNode.getChildren().add(new DefaultTreeNode(str));
+                
+            }
+           //selectedNode.setOpened(true);
         }
-        for (JSdtpModel list1 : list) {
-            selectedNode.getChildren().add(new SdtpTreeNode(list1, list1.getKonu()));
-        }
-        selectedNode.setOpened(true);
+           
     }
 
 
@@ -286,8 +335,7 @@ public class IndexBean implements Serializable {
     public void setSearchDosyaIsmi(String searchDosyaIsmi) {
         this.searchDosyaIsmi = searchDosyaIsmi;
     }
-    
-    
+
     
 
 }
