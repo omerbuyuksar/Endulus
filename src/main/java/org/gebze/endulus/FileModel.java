@@ -154,22 +154,28 @@ public class FileModel {
     public String getId(){
         return id;
     }
-    public StreamedContent getImage()  {
+    public String getImage()  {
         
-        try {
-            FacesContext context = FacesContext.getCurrentInstance();
-
-            ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-            InputStream input;
-            if (dosyaTuru.contentEquals("PDF")) {
-
-                input = externalContext.getResourceAsStream("/resources/images/pdf.png");
-            } else {
-                input = externalContext.getResourceAsStream("/resources/images/any.jpg");
-            }
-            return new DefaultStreamedContent(input);
-        } catch (Exception e) {
-            return null;
+        
+        if (dosyaTuru.contentEquals("PDF")) {
+            return "pdf.png";
+        } else if (dosyaTuru.contentEquals("JPG")) {
+            return "jpg-icon.png";
+        }
+        else if (dosyaTuru.contentEquals("JPEG")) {
+            return "jpg-icon.png";
+        }
+        else if (dosyaTuru.contentEquals("TXT")) {
+            return "txt-icon.png";
+        }
+        else if (dosyaTuru.contentEquals("DOC")) {
+            return "doc.jpg";
+        }
+        else if (dosyaTuru.contentEquals("DOCX")) {
+            return "doc.jpg";
+        }
+        else {
+            return "any.jpg";
         }
     }
     

@@ -50,7 +50,7 @@ public class IndexBean implements Serializable {
     private String searchDosyaIsmi;
     private String searchKonusu;
     private String searchKodu;
-    private boolean searchSonmuTik;
+    private boolean searchSonmuTik=true;
     private String searchDosyaturu;
     private String searchKaydedenKullanici;
     private String searchTablo;
@@ -119,18 +119,24 @@ public class IndexBean implements Serializable {
     }
     public BasicDBObject getAdvancedSearchValues(){
          BasicDBObject obj = new BasicDBObject();
-
-        obj.append("isim", Pattern.compile(getSearchDosyaIsmi(), Pattern.CASE_INSENSITIVE));
-        obj.append("kaydedenUser_username", Pattern.compile(getSearchKaydedenKullanici(), Pattern.CASE_INSENSITIVE));
-        if (!getSearchDosyaturu().contentEquals("ALL")) {
+         
+         List<JSdtpModel> list=null;
+        if(getSearchDosyaIsmi().length() > 0)
+            obj.append("isim", Pattern.compile(getSearchDosyaIsmi(), Pattern.CASE_INSENSITIVE));
+        if(getSearchKaydedenKullanici().length() > 0)
+            obj.append("kaydedenUser_username", Pattern.compile(getSearchKaydedenKullanici(), Pattern.CASE_INSENSITIVE));
+        if (!getSearchDosyaturu().matches("ALL")) {
             obj.append("dosyaTuru", Pattern.compile(getSearchDosyaturu(), Pattern.CASE_INSENSITIVE));
         }
         if (isSearchSonmuTik()) {
             obj.append("sonuncu", isSearchSonmuTik());
         }
-        obj.append("table", Pattern.compile(getSearchTablo(), Pattern.CASE_INSENSITIVE));
-        obj.append("klasorPath", Pattern.compile(getSearchKodu(), Pattern.CASE_INSENSITIVE));
-        List<JSdtpModel> list = sdtpService.findWithKonu(getSearchKonusu());
+        if(getSearchTablo().length() > 0)
+            obj.append("table", Pattern.compile(getSearchTablo(), Pattern.CASE_INSENSITIVE));
+        if(getSearchKodu().length() > 0)
+            obj.append("klasorPath", Pattern.compile(getSearchKodu(), Pattern.CASE_INSENSITIVE));
+        if(getSearchKonusu().length() > 0)
+            list = sdtpService.findWithKonu(getSearchKonusu());
         if(list != null) {
             for (JSdtpModel list1 : list) {
                 obj.append("klasorPath", Pattern.compile("" + list1.getStdpKodu(), Pattern.CASE_INSENSITIVE));
