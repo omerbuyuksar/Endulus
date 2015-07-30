@@ -249,10 +249,10 @@ public class IndexBean implements Serializable {
         this.firstDate = firstDate;
     }
  
-    public Date getlastDate() {
+    public Date getLastDate() {
         return lastDate;
     }
-    public void setlastDate(Date lastDate) {
+    public void setLastDate(Date lastDate) {
         this.lastDate = lastDate;
     }
     
