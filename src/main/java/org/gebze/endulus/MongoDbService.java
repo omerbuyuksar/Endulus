@@ -115,14 +115,15 @@ public class MongoDbService {
         if (result.getString("isim", null) != null) {
             str = result.getString("isim");
             newFile.setFileName(str);
-            try {
-                newFile.setDosyaTuru(displayContentType(str));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         else
             return null;
+        if (result.getString("dosyaTuru", null) != null) {
+            str = result.getString("dosyaTuru");
+            newFile.setDosyaTuru(str);
+        }
+        else
+            return null;     
         if (result.getString("fileId", null) != null) {
             str = result.getString("fileId");
             newFile.setId(str);

@@ -11,6 +11,7 @@ import java.util.List;
 import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,11 +21,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
-import org.primefaces.event.NodeCollapseEvent;
-import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.event.NodeSelectEvent;
-import org.primefaces.event.NodeUnselectEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.StreamedContent;
@@ -45,6 +42,8 @@ public class IndexBean implements Serializable {
     private boolean connected = false;
     private MongoDbService mydb;
     private String console;
+    private Date firstDate;
+    private Date lastDate; 
     
     private SdtpService sdtpService;
     private String searchText;
@@ -60,8 +59,9 @@ public class IndexBean implements Serializable {
     public int buttonConnectDb() {
         try {
             mydb.connectToMongoDB("mydb", 27017, "192.168.77.25", "nico", "nico");
-            files = mydb.getAllFiles("veriler");
+            //files = mydb.getAllFiles("veriler");
             addMessage("Connected");
+            addSdtpNodes();
             connected = true;
         } catch (Exception e) {
             addMessage("Connection Failed");
@@ -99,7 +99,6 @@ public class IndexBean implements Serializable {
         files = new ArrayList<>();
         sdtpService = new SdtpService();
         root = new DefaultTreeNode("Root", null);
-        addSdtpNodes();
     }
     
     public void searchByName(){
@@ -132,10 +131,11 @@ public class IndexBean implements Serializable {
         obj.append("table", Pattern.compile(getSearchTablo(), Pattern.CASE_INSENSITIVE));
         obj.append("klasorPath", Pattern.compile(getSearchKodu(), Pattern.CASE_INSENSITIVE));
         List<JSdtpModel> list = sdtpService.findWithKonu(getSearchKonusu());
-        for (JSdtpModel list1 : list) {
-            obj.append("klasorPath", Pattern.compile("" + list1.getStdpKodu(), Pattern.CASE_INSENSITIVE));
+        if(list != null) {
+            for (JSdtpModel list1 : list) {
+                obj.append("klasorPath", Pattern.compile("" + list1.getStdpKodu(), Pattern.CASE_INSENSITIVE));
+            }
         }
-
         return obj;
     }
 
@@ -172,13 +172,25 @@ public class IndexBean implements Serializable {
 
     public void onNodeSelect(NodeSelectEvent event) {
 
-        if(selectedNode.isOpened())
-            return;
+        
         List<JSdtpModel> list;
         List<Long> llist;
         //sdtp turu bakılcak
+        
+        if(selectedNode.isDizin()){
+            
+            files.clear();
+            System.out.println("dizin_id: "+selectedNode.getDizin_id());
+            files=mydb.getFilesByDizinId("veriler", selectedNode.getDizin_id()); 
+            return;
+        }
+        
         if(selectedNode.getSdtpmodel().getSdtpTuru() != 2){
+            files.clear();
+            if(selectedNode.isOpened())
+                return;
             System.out.println(""+selectedNode.getSdtpmodel().getSdtpTuru()+"  "+selectedNode.getSdtpmodel().getStdpKodu());
+            
             list = sdtpService.findSdtpWithId("" + selectedNode.getSdtpmodel().getId());
 
             if (list == null) {
@@ -191,39 +203,46 @@ public class IndexBean implements Serializable {
             selectedNode.setOpened(true);
         } else {
             System.out.println(""+selectedNode.getSdtpmodel().getSdtpTuru()+"  "+selectedNode.getSdtpmodel().getStdpKodu());
+            System.out.flush();
+            files.clear();
             llist = sdtpService.getEbysDizin("" + selectedNode.getSdtpmodel().getId());
             if(llist==null){
                 addMessage("Cannot Get SDTP Files");
                 return;
             }
             List<FileModel> modelList;
-            files.clear();
+            
             if (!mydb.isConnected()) {
                 try {
                     mydb.connectToMongoDB("mydb", 27017, "192.168.77.25", "nico", "nico");
                     connected = true;
                 } catch (UnknownHostException ex) {
+                    addMessage("Cannot Connect to DB");
                     Logger.getLogger(IndexBean.class.getName()).log(Level.SEVERE, null, ex);
                     addMessage("Cannot Connect to DB");
+                    return;
                 }
             }
-            for (int i = 0; i < llist.size(); ++i) {
-
-                modelList = mydb.getFilesByDizinId("veriler", llist.get(i).intValue());
-                for (int j = 0; j < modelList.size(); j++) {
-                    files.add(modelList.get(i));
+            for (Long llist1 : llist) {
+                modelList = mydb.getFilesByDizinId("veriler", llist1.intValue());
+                for (FileModel modelList1 : modelList) {
+                    files.add(modelList1);
                 }
-            }
-            for (FileModel file : files) {
+                if (selectedNode.isOpened() || modelList.isEmpty()) {
+                    continue;
+                }
                 String str;
-                str = file.getKlasorPath();
-                String kodu=selectedNode.getSdtpmodel().getStdpKodu().replace('.', '/');      
-                str=str.replaceFirst(kodu, "");
-                selectedNode.getChildren().add(new DefaultTreeNode(str));
-                
+                str = files.get(files.size() - 1).getKlasorPath();
+                String kodu = selectedNode.getSdtpmodel().getStdpKodu().replace('.', '/');
+                str = str.replaceFirst(kodu, "");
+                SdtpTreeNode newJTModel = new SdtpTreeNode(files.get(files.size() - 1).getDizinId(), str);
+                newJTModel.setIsDizin(true);
+                newJTModel.setDizin_id(llist1.intValue());
+                selectedNode.getChildren().add(newJTModel);
             }
-           //selectedNode.setOpened(true);
+           selectedNode.setOpened(true);
         }
+        
            
     }
 
@@ -335,6 +354,20 @@ public class IndexBean implements Serializable {
     public void setSearchDosyaIsmi(String searchDosyaIsmi) {
         this.searchDosyaIsmi = searchDosyaIsmi;
     }
+    public Date getFirstDate() {
+        return firstDate;
+    }
+    public void setFirstDate(Date firstDate) {
+        this.firstDate = firstDate;
+    }
+ 
+    public Date getLastDate() {
+        return lastDate;
+    }
+    public void setLastDate(Date lastDate) {
+        this.lastDate = lastDate;
+    }
+    
 
     
 

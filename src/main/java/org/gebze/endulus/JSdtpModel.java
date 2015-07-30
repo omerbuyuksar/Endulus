@@ -12,57 +12,68 @@ package org.gebze.endulus;
 public class JSdtpModel
         extends JbaseModel {
 
-  private long id;
-  private String stdpKodu;
-  private String konu;
-  private long ustSdtpId;
-  private int sdtpTuru;
+    private long id;
+    private String stdpKodu;
+    private String konu;
+    private long ustSdtpId;
+    private int sdtpTuru;
 
-  public JSdtpModel() {
-  }
+    public JSdtpModel() {
+    }
 
-  public JSdtpModel(String hata) {
-    hataBilgisi = hata;
-  }
+    public JSdtpModel(long id, String stdpKodu, String konu, long ustSdtpId, int sdtpTuru) {
+        this.id = id;
+        this.stdpKodu = stdpKodu;
+        this.konu = konu;
+        this.ustSdtpId = ustSdtpId;
+        this.sdtpTuru = sdtpTuru;
+    }
+    public JSdtpModel( int sdtpTuru) {
+        this.sdtpTuru = sdtpTuru;
+    }
 
-  public long getId() {
-    return id;
-  }
+    public JSdtpModel(String hata) {
+        hataBilgisi = hata;
+    }
 
-  public void setId(long id) {
-    this.id = id;
-  }
+    public long getId() {
+        return id;
+    }
 
-  public String getStdpKodu() {
-    return stdpKodu;
-  }
+    public void setId(long id) {
+        this.id = id;
+    }
 
-  public void setStdpKodu(String stdpKodu) {
-    this.stdpKodu = stdpKodu;
-  }
+    public String getStdpKodu() {
+        return stdpKodu;
+    }
 
-  public String getKonu() {
-    return konu;
-  }
+    public void setStdpKodu(String stdpKodu) {
+        this.stdpKodu = stdpKodu;
+    }
 
-  public void setKonu(String konu) {
-    this.konu = konu;
-  }
+    public String getKonu() {
+        return konu;
+    }
 
-  public long getUstSdtpId() {
-    return ustSdtpId;
-  }
+    public void setKonu(String konu) {
+        this.konu = konu;
+    }
 
-  public void setUstSdtpId(long ustSdtpId) {
-    this.ustSdtpId = ustSdtpId;
-  }
+    public long getUstSdtpId() {
+        return ustSdtpId;
+    }
 
-  public int getSdtpTuru() {
-    return sdtpTuru;
-  }
+    public void setUstSdtpId(long ustSdtpId) {
+        this.ustSdtpId = ustSdtpId;
+    }
 
-  public void setSdtpTuru(int sdtpTuru) {
-    this.sdtpTuru = sdtpTuru;
-  }
+    public int getSdtpTuru() {
+        return sdtpTuru;
+    }
+
+    public void setSdtpTuru(int sdtpTuru) {
+        this.sdtpTuru = sdtpTuru;
+    }
 
 }
