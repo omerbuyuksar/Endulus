@@ -105,6 +105,7 @@ public class MongoDbService {
     public List<FileModel> getFilesByDizinId(String collectionName,int id){
         
         BasicDBObject obj = new BasicDBObject().append("dizin_id", id);
+        obj.append("sonuncu", true);
         return getFilesAdvanced(collectionName,obj);
     }
 

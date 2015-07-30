@@ -43,18 +43,17 @@ public class IndexBean implements Serializable {
     private MongoDbService mydb;
     private String console;
     private Date firstDate;
-    private Date lastDate; 
-    
+    private Date lastDate;
+
     private SdtpService sdtpService;
     private String searchText;
     private String searchDosyaIsmi;
     private String searchKonusu;
     private String searchKodu;
-    private boolean searchSonmuTik=true;
+    private boolean searchSonmuTik = true;
     private String searchDosyaturu;
     private String searchKaydedenKullanici;
     private String searchTablo;
-
 
     public int buttonConnectDb() {
         try {
@@ -72,7 +71,9 @@ public class IndexBean implements Serializable {
 
     public int buttonLogout() {
         try {
-
+            files.clear();
+            root = new DefaultTreeNode("Root", null);
+            connected = false;
             addMessage("Log out");
         } catch (Exception e) {
             addMessage("Log out Failed");
@@ -100,44 +101,51 @@ public class IndexBean implements Serializable {
         sdtpService = new SdtpService();
         root = new DefaultTreeNode("Root", null);
     }
-    
-    public void searchByName(){
-        if(!connected){
+
+    public void searchByName() {
+        if (!connected) {
             addMessage("Connect DB First");
             return;
         }
         files = mydb.getFilesByName("veriler", getSearchText());
-        addMessage(""+files.size()+" Files Found");
+        addMessage("" + files.size() + " Files Found");
     }
-    public void searchAdvanced(){
-        if(!connected){
+
+    public void searchAdvanced() {
+        if (!connected) {
             addMessage("Connect DB First");
             return;
         }
         files = mydb.getFilesAdvanced("veriler", getAdvancedSearchValues());
-        addMessage(""+files.size()+" Files Found");
+        addMessage("" + files.size() + " Files Found");
     }
-    public BasicDBObject getAdvancedSearchValues(){
-         BasicDBObject obj = new BasicDBObject();
-         
-         List<JSdtpModel> list=null;
-        if(getSearchDosyaIsmi().length() > 0)
+
+    public BasicDBObject getAdvancedSearchValues() {
+        BasicDBObject obj = new BasicDBObject();
+
+        List<JSdtpModel> list = null;
+        if (getSearchDosyaIsmi().length() > 0) {
             obj.append("isim", Pattern.compile(getSearchDosyaIsmi(), Pattern.CASE_INSENSITIVE));
-        if(getSearchKaydedenKullanici().length() > 0)
+        }
+        if (getSearchKaydedenKullanici().length() > 0) {
             obj.append("kaydedenUser_username", Pattern.compile(getSearchKaydedenKullanici(), Pattern.CASE_INSENSITIVE));
+        }
         if (!getSearchDosyaturu().matches("ALL")) {
             obj.append("dosyaTuru", Pattern.compile(getSearchDosyaturu(), Pattern.CASE_INSENSITIVE));
         }
         if (isSearchSonmuTik()) {
             obj.append("sonuncu", isSearchSonmuTik());
         }
-        if(getSearchTablo().length() > 0)
+        if (getSearchTablo().length() > 0) {
             obj.append("table", Pattern.compile(getSearchTablo(), Pattern.CASE_INSENSITIVE));
-        if(getSearchKodu().length() > 0)
+        }
+        if (getSearchKodu().length() > 0) {
             obj.append("klasorPath", Pattern.compile(getSearchKodu(), Pattern.CASE_INSENSITIVE));
-        if(getSearchKonusu().length() > 0)
+        }
+        if (getSearchKonusu().length() > 0) {
             list = sdtpService.findWithKonu(getSearchKonusu());
-        if(list != null) {
+        }
+        if (list != null) {
             for (JSdtpModel list1 : list) {
                 obj.append("klasorPath", Pattern.compile("" + list1.getStdpKodu(), Pattern.CASE_INSENSITIVE));
             }
@@ -151,7 +159,7 @@ public class IndexBean implements Serializable {
 
         if (list == null) {
             addMessage("Cannot Get SDTP Files");
-            
+
             return;
         }
 
@@ -175,28 +183,30 @@ public class IndexBean implements Serializable {
         return new DefaultStreamedContent(input, str, file.getFileName());
     }
 
-
     public void onNodeSelect(NodeSelectEvent event) {
 
-        
         List<JSdtpModel> list;
         List<Long> llist;
+        String str;
+        SdtpTreeNode newJTModel;
+        String kodu;
         //sdtp turu bakılcak
-        
-        if(selectedNode.isDizin()){
-            
+
+        if (selectedNode.isDizin()) {
+
             files.clear();
-            System.out.println("dizin_id: "+selectedNode.getDizin_id());
-            files=mydb.getFilesByDizinId("veriler", selectedNode.getDizin_id()); 
+            System.out.println("dizin_id: " + selectedNode.getDizin_id());
+            files = mydb.getFilesByDizinId("veriler", selectedNode.getDizin_id());
             return;
         }
-        
-        if(selectedNode.getSdtpmodel().getSdtpTuru() != 2){
+
+        if (selectedNode.getSdtpmodel().getSdtpTuru() != 2) {
             files.clear();
-            if(selectedNode.isOpened())
+            if (selectedNode.isOpened()) {
                 return;
-            System.out.println(""+selectedNode.getSdtpmodel().getSdtpTuru()+"  "+selectedNode.getSdtpmodel().getStdpKodu());
-            
+            }
+            System.out.println("" + selectedNode.getSdtpmodel().getSdtpTuru() + "  " + selectedNode.getSdtpmodel().getStdpKodu());
+
             list = sdtpService.findSdtpWithId("" + selectedNode.getSdtpmodel().getId());
 
             if (list == null) {
@@ -208,16 +218,16 @@ public class IndexBean implements Serializable {
             }
             selectedNode.setOpened(true);
         } else {
-            System.out.println(""+selectedNode.getSdtpmodel().getSdtpTuru()+"  "+selectedNode.getSdtpmodel().getStdpKodu());
+            System.out.println("" + selectedNode.getSdtpmodel().getSdtpTuru() + "  " + selectedNode.getSdtpmodel().getStdpKodu());
             System.out.flush();
             files.clear();
             llist = sdtpService.getEbysDizin("" + selectedNode.getSdtpmodel().getId());
-            if(llist==null){
+            if (llist == null) {
                 addMessage("Cannot Get SDTP Files");
                 return;
             }
             List<FileModel> modelList;
-            
+
             if (!mydb.isConnected()) {
                 try {
                     mydb.connectToMongoDB("mydb", 27017, "192.168.77.25", "nico", "nico");
@@ -237,21 +247,19 @@ public class IndexBean implements Serializable {
                 if (selectedNode.isOpened() || modelList.isEmpty()) {
                     continue;
                 }
-                String str;
+
                 str = files.get(files.size() - 1).getKlasorPath();
-                String kodu = selectedNode.getSdtpmodel().getStdpKodu().replace('.', '/');
+                kodu = selectedNode.getSdtpmodel().getStdpKodu().replace('.', '/');
                 str = str.replaceFirst(kodu, "");
-                SdtpTreeNode newJTModel = new SdtpTreeNode(files.get(files.size() - 1).getDizinId(), str);
+                newJTModel = new SdtpTreeNode(files.get(files.size() - 1).getDizinId(), str);
                 newJTModel.setIsDizin(true);
                 newJTModel.setDizin_id(llist1.intValue());
                 selectedNode.getChildren().add(newJTModel);
             }
-           selectedNode.setOpened(true);
+            selectedNode.setOpened(true);
         }
-        
-           
-    }
 
+    }
 
     public List<FileModel> getFiles() {
         return files;
@@ -360,21 +368,21 @@ public class IndexBean implements Serializable {
     public void setSearchDosyaIsmi(String searchDosyaIsmi) {
         this.searchDosyaIsmi = searchDosyaIsmi;
     }
+
     public Date getFirstDate() {
         return firstDate;
     }
+
     public void setFirstDate(Date firstDate) {
         this.firstDate = firstDate;
     }
- 
+
     public Date getLastDate() {
         return lastDate;
     }
+
     public void setLastDate(Date lastDate) {
         this.lastDate = lastDate;
     }
-    
-
-    
 
 }
