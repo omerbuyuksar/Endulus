@@ -96,7 +96,7 @@ public class IndexBean implements Serializable {
         Set<String> collectionNameList = null;
         List<String> list = new ArrayList();
         mydb = new MongoDbService();
-        mydb.setCursorLimit(1500);
+        mydb.setCursorLimit(0);
         files = new ArrayList<>();
         sdtpService = new SdtpService();
         root = new DefaultTreeNode("Root", null);

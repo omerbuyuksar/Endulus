@@ -21,9 +21,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.ws.rs.core.MediaType;
 import org.bson.types.ObjectId;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -99,7 +97,9 @@ public class MongoDbService {
     }
     public List<FileModel> getFilesByName(String collectionName,String fileName){
         
-        BasicDBObject obj = new BasicDBObject().append("isim", Pattern.compile(fileName, Pattern.CASE_INSENSITIVE));
+        BasicDBObject obj = new BasicDBObject();
+        if(fileName.length() > 0)
+            obj.append("isim", Pattern.compile(fileName, Pattern.CASE_INSENSITIVE));
         return getFilesAdvanced(collectionName,obj);
     }
     public List<FileModel> getFilesByDizinId(String collectionName,int id){

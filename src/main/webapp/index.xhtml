@@ -28,6 +28,18 @@
                 .ui-layout-north .ui-layout-unit-content {
                     overflow: hidden !important;
                 }
+                .ui-layout-west .ui-layout-unit-content {
+                    overflow-x: hidden !important;
+                }
+                .ui-icon-0-folder{
+                    background-image: url("#{resource['images/folder-0-icon.png']}") !important;
+                }
+                .ui-icon-1-folder{
+                    background-image: url("#{resource['images/folder-1-icon.png']}") !important;
+                }
+                .ui-icon-2-folder{
+                    background-image: url("#{resource['images/folder-2-icon.png']}") !important;
+                }
             </style>
         </h:head>
         <h:body>
@@ -75,9 +87,9 @@
                         <f:facet name="header">
                             Klasörler
                         </f:facet>
-                        <p:tree id="tree" value="#{indexBean.root}" var="klasor" dynamic="true" selection="#{indexBean.selectedNode}" selectionMode="single" >                            
+                        <p:tree id="tree" value="#{indexBean.root}" var="klasor" dynamic="true" selection="#{indexBean.selectedNode}" selectionMode="single" nodeVar="klasorNode">                            
                             <p:ajax event="select" listener="#{indexBean.onNodeSelect}" update=":form:tree :form:files" />
-                            <p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">
+                            <p:treeNode icon="ui-icon-#{klasorNode.sdtpmodel.sdtpTuru}-folder" >
                                 <h:outputText value="#{klasor}" />
                             </p:treeNode>
                         </p:tree>
