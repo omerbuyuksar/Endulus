@@ -59,7 +59,7 @@ public class IndexBean implements Serializable {
         try {
             mydb.connectToMongoDB("mydb", 27017, "192.168.77.25", "nico", "nico");
             //files = mydb.getAllFiles("veriler");
-            addMessage("Connected");
+            addMessage(" MongoDB Connected");
             addSdtpNodes();
             connected = true;
         } catch (Exception e) {
@@ -96,7 +96,7 @@ public class IndexBean implements Serializable {
         Set<String> collectionNameList = null;
         List<String> list = new ArrayList();
         mydb = new MongoDbService();
-        mydb.setCursorLimit(0);
+        mydb.setCursorLimit(100);
         files = new ArrayList<>();
         sdtpService = new SdtpService();
         root = new DefaultTreeNode("Root", null);
@@ -116,7 +116,7 @@ public class IndexBean implements Serializable {
             addMessage("Connect DB First");
             return;
         }
-        files = mydb.getFilesAdvanced("veriler", getAdvancedSearchValues());
+        files = mydb.getFilesAdvanced("veriler", getAdvancedSearchValues(),firstDate,lastDate);
         addMessage("" + files.size() + " Files Found");
     }
 
@@ -182,6 +182,7 @@ public class IndexBean implements Serializable {
         }
         return new DefaultStreamedContent(input, str, file.getFileName());
     }
+    
 
     public void onNodeSelect(NodeSelectEvent event) {
 

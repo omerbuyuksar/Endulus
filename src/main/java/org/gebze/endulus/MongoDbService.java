@@ -6,6 +6,7 @@
 package org.gebze.endulus;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -18,10 +19,17 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 import org.bson.types.ObjectId;
+import sun.nio.cs.ISO_8859_9;
 
 /**
  *
@@ -76,6 +84,45 @@ public class MongoDbService {
             }
         }
         return list;
+    }
+    public List<FileModel> getFilesAdvanced(String collectionName,BasicDBObject obj,Date firsDate,Date secondDate){
+        FileModel model;
+        List<FileModel> list = new ArrayList<>();
+        List<FileModel> finalList = new ArrayList<>();
+        DBCollection coll = db.getCollection(collectionName);
+        DBCursor cursor = coll.find(obj);
+        cursor = cursor.limit(cursorLimit);
+        while (cursor.hasNext()) {
+            BasicDBObject result = (BasicDBObject) cursor.next();
+            model = BasicDBObjectToFileModel(result);
+            if (model != null) {
+                list.add(model);
+            }
+        }
+        if(firsDate==null&&secondDate==null)
+            return list;
+        obj = new BasicDBObject();
+        BasicDBObjectBuilder obj1 = BasicDBObjectBuilder.start();
+        if (firsDate != null) {
+            obj1.add("$gte", firsDate);
+        }
+        if (secondDate != null) {
+            obj1.add("$lte", secondDate);
+        }
+        obj.append("uploadDate", obj1.get());
+       
+        
+        /*Lis<User> users = mongoOps.find(query(where("isActive").is(true).and("CreatedDate").lte(new java.util.Date())), User.class);*/
+        boolean flag=false;
+        
+        for (FileModel listItem : list) {
+            coll=db.getCollection(listItem.getTable()+".files");
+            cursor = coll.find(obj);
+            if(cursor.hasNext()){
+                finalList.add(listItem);
+            }
+        }
+        return finalList;
 
     }
 
