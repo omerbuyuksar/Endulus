@@ -23,11 +23,8 @@ public class SdtpService {
     private WebResource resource;
 
     public SdtpService() {
-        c=new Client();
+        c = new Client();
     }
-
-    
-    
 
     public List<JSdtpModel> getSdtp() {
         try {
@@ -56,7 +53,7 @@ public class SdtpService {
         return null;
     }
 
-    public  List<JSdtpModel> findSdtpWithId(String id) {
+    public List<JSdtpModel> findSdtpWithId(String id) {
         try {
             resource = c.resource("http://test.gebze.bel.tr/NicoExporter/exp")
                     .path("sdtpServis")
@@ -84,7 +81,7 @@ public class SdtpService {
         return null;
     }
 
-    public  List<JSdtpModel> findWithKonu(String konu) {
+    public List<JSdtpModel> findWithKonu(String konu) {
         try {
             resource = c.resource("http://test.gebze.bel.tr/NicoExporter/exp")
                     .path("sdtpServis")
@@ -106,6 +103,62 @@ public class SdtpService {
                 list.add(new ObjectMapper().convertValue(rv, JSdtpModel.class));
             }
             return list;
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return null;
+
+    }
+
+    public List<Long> getEbysDizin(String sdtpId) {
+        try {
+            resource = c.resource("http://test.gebze.bel.tr/NicoExporter/exp")
+                    .path("sdtpServis")
+                    .path("readEbysDizinIdListe")
+                    .path(sdtpId);
+
+            ClientResponse response = resource.type(
+                    MediaType.APPLICATION_JSON)
+                    .post(ClientResponse.class);
+            if (response.getStatus() != 201) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + response.getStatus());
+            }
+            String entity = response.getEntity(String.class);
+            ArrayList readValue = new ObjectMapper().
+                    readValue(entity, ArrayList.class);
+            List<Long> list = new ArrayList<>();
+
+            for (Object rv : readValue) {
+                list.add(new ObjectMapper().convertValue(rv, Long.class));
+            }
+            return list;
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return null;
+
+    }
+
+    public JSdtpModel getSdtpWithKodu(String sdtpKodu) {
+        try {
+            resource = c.resource("http://test.gebze.bel.tr/NicoExporter/exp")
+                    .path("sdtpServis")
+                    .path("getSdtpWithKodu")
+                    .path(sdtpKodu);
+
+            ClientResponse response = resource.type(
+                    MediaType.APPLICATION_JSON)
+                    .post(ClientResponse.class);
+            if (response.getStatus() != 201) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + response.getStatus());
+            }
+            String entity = response.getEntity(String.class);
+            JSdtpModel readValue = new ObjectMapper().
+                    readValue(entity, JSdtpModel.class);
+
+            return readValue;
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }

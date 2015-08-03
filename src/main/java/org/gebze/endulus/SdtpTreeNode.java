@@ -16,6 +16,8 @@ public class SdtpTreeNode extends DefaultTreeNode {
     
     private JSdtpModel sdtpmodel;
     private boolean opened=false;
+    private boolean dizin=false;
+    private int dizin_id;
 
     public JSdtpModel getSdtpmodel() {
         return sdtpmodel;
@@ -38,6 +40,11 @@ public class SdtpTreeNode extends DefaultTreeNode {
         super(data);
         this.sdtpmodel = sdtpmodel;
     }
+    public SdtpTreeNode(int dizin_id,Object data) {
+        super(data);
+        dizin=true;
+        this.dizin_id=dizin_id;
+    }
 
     public boolean isOpened() {
         return opened;
@@ -46,6 +53,24 @@ public class SdtpTreeNode extends DefaultTreeNode {
     public void setOpened(boolean opened) {
         this.opened = opened;
     }
+
+    public boolean isDizin() {
+        return dizin;
+    }
+
+    public void setIsDizin(boolean isDizin) {
+        this.dizin = isDizin;
+    }
+
+    public int getDizin_id() {
+        return dizin_id;
+    }
+
+    public void setDizin_id(int dizin_id) {
+        this.dizin_id = dizin_id;
+    }
+    
+    
     
     
 }

@@ -5,7 +5,14 @@
  */
 package org.gebze.endulus;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.UUID;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
 
 /**
@@ -20,7 +27,7 @@ public class FileModel {
     private String fileName;
     private String kaydedenKullaniciAdi;
     private int kaydedenKullaniciId;
-    private int diziId;
+    private int dizinId;
     private String dosyaTuru;
     private boolean sonuncuMu;
     private String table;
@@ -75,12 +82,12 @@ public class FileModel {
         this.kaydedenKullaniciId = kaydedenKullaniciId;
     }
 
-    public int getDiziId() {
-        return diziId;
+    public int getDizinId() {
+        return dizinId;
     }
 
-    public void setDiziId(int diziId) {
-        this.diziId = diziId;
+    public void setDizinId(int diziId) {
+        this.dizinId = diziId;
     }
 
     public String getDosyaTuru() {
@@ -147,6 +154,30 @@ public class FileModel {
     public String getId(){
         return id;
     }
+    public String getImage()  {
+        
+        
+        if (dosyaTuru.contentEquals("PDF")) {
+            return "pdf.png";
+        } else if (dosyaTuru.contentEquals("JPG")) {
+            return "jpg-icon.png";
+        }
+        else if (dosyaTuru.contentEquals("JPEG")) {
+            return "jpg-icon.png";
+        }
+        else if (dosyaTuru.contentEquals("TXT")) {
+            return "txt-icon.png";
+        }
+        else if (dosyaTuru.contentEquals("DOC")) {
+            return "doc.jpg";
+        }
+        else if (dosyaTuru.contentEquals("DOCX")) {
+            return "doc.jpg";
+        }
+        else {
+            return "any.jpg";
+        }
+    }
     
     
     @Override
@@ -155,6 +186,7 @@ public class FileModel {
         hash = 59 * hash + (this.id != null ? this.id.hashCode() : 0);
         return hash;
     }
+    
 
     @Override
     public boolean equals(Object obj) {

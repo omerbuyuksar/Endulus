@@ -28,20 +28,27 @@
                 .ui-layout-north .ui-layout-unit-content {
                     overflow: hidden !important;
                 }
+                .ui-layout-west .ui-layout-unit-content {
+                    overflow-x: hidden !important;
+                }
+                .ui-icon-0-folder{
+                    background-image: url("#{resource['images/blue-folder.png']}") !important;
+                }
+                .ui-icon-1-folder{
+                    background-image: url("#{resource['images/yellow-folder.png']}") !important;
+                }
+                .ui-icon-2-folder{
+                    background-image: url("#{resource['images/red-folder.png']}") !important;
+                }
+                .text-word-wrap {
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-all;
+                }
+                .dateStyle input {
+                    width: 80px;
+                }
             </style>
-            
-            <script type="text/javascript">
-                 var layoutSettingsAll = {
-                     name: "layoutSettings"
-                     , north: {
-                         spacing_open: 0
-                         , spacing_closed: 0
-                     }
-                 }
-                 $(document).ready(function() {
-                     layoutSettings = $("body").layout(layoutSettingsAll);
-                 });
-            </script>
         </h:head>
         <h:body>
             <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
@@ -68,14 +75,11 @@
                         <p:toolbar >
                             <f:facet name="left">
                                 <p:graphicImage style="height: 25px;width: 100px" library="images" name="gebze_bel_logo.png"/> 
+                                <p:graphicImage style="height: 25px;width: 100px" library="images" name="logo_endulus.png"/> 
                             </f:facet>
                             <f:facet name="right" > 
-                                <p:commandButton type="button" value="Kaydet " icon="ui-icon-arrowthick-1-s" />                                
-                                <span class="ui-separator">
-                                    <span class="ui-icon ui-icon-grip-dotted-vertical" />
-                                </span>
-                                <p:inputText id="globalFilter"   placeholder="Kelime girin" value="#{getText1}"  />               
-                                <p:commandButton id = "search" actionListener="#{text1}" title="Search:"  ajax="false" icon="ui-icon-search" />
+                                <p:inputText id="globalFilter"   placeholder="Kelime girin" value="#{indexBean.searchText}"  />               
+                                <p:commandButton id = "search" actionListener="#{indexBean.searchByName}" title="Search:"  ajax="false" icon="ui-icon-search" />
                                 <span class="ui-separator">
                                     <span class="ui-icon ui-icon-grip-dotted-vertical" />
                                 </span>
@@ -84,7 +88,7 @@
                                     <span class="ui-icon ui-icon-grip-dotted-vertical" />
                                 </span>
                                 <p:commandButton value = " Bağlan " id="connectDB" actionListener="#{indexBean.buttonConnectDb}" ajax="false" update=":form:messages" styleClass="ui-priority-primary" />   
-                                <p:commandButton value="Çıkış"  ajax="false" id="ajax" update="growl" actionListener="#{indexBean.buttonDownload}" styleClass="ui-priority-primary" />
+                                <p:commandButton value="Çıkış"  ajax="false" id="ajax" update="growl" actionListener="#{indexBean.buttonLogout}" styleClass="ui-priority-primary" />
                             </f:facet>
                         </p:toolbar>
                     </p:layoutUnit>
@@ -92,11 +96,12 @@
                         <f:facet name="header">
                             Klasörler
                         </f:facet>
-                        <p:tree id="tree" value="#{indexBean.root}" var="klasor" dynamic="true" selection="#{indexBean.selectedNode}" selectionMode="single" >                            
-                            <p:ajax event="select" listener="#{indexBean.onNodeSelect}" update=":form:tree"/>
-                            <p:treeNode expandedIcon="ui-icon-folder-open" collapsedIcon="ui-icon-folder-collapsed">
+                        <p:tree id="tree" value="#{indexBean.root}" var="klasor" dynamic="true" selection="#{indexBean.selectedNode}" selectionMode="single" nodeVar="klasorNode">                            
+                            <p:ajax event="select" listener="#{indexBean.onNodeSelect}" update=":form:tree :form:files" />
+                            <p:treeNode icon="ui-icon-#{klasorNode.sdtpmodel.sdtpTuru}-folder" >
                                 <h:outputText value="#{klasor}" />
                             </p:treeNode>
+                            
                         </p:tree>
                         
                     </p:layoutUnit>
@@ -104,15 +109,22 @@
                         <f:facet name="header">
                                 Dosyalar
                         </f:facet>
-                        <p:dataGrid var="file" value="#{indexBean.files}">
-                            <h:panelGrid>
+                        <p:dataGrid id="files" var="file" value="#{indexBean.files}" columns="4">
+                            <h:panelGrid style="width: 280px; height: 30px; ">
                                 <p:row>
                                     <p:column>
                                         <p:commandLink id="fileName" ajax="true" >
-                                            <p:graphicImage style="height: 20px;width: 20px" library="images" name="pdf.jpg"/> 
-                                            <h:outputText value="#{file.fileName}" />
-                                        </p:commandLink>     
-                                        
+                                            <p:panelGrid>
+                                                <p:row>
+                                                    <p:column style="border-color: saddlebrown; background-color: aliceblue">
+                                                        <p:graphicImage style="height: 30px;width: 30px" library="images" name="#{file.image}"/> 
+                                                    </p:column>
+                                                    <p:column style="border-bottom: hidden; border-right: hidden; border-top: hidden;">
+                                                        <h:outputText value="#{file.fileName}" styleClass="text-word-wrap" />   
+                                                    </p:column>   
+                                                </p:row>
+                                            </p:panelGrid> 
+                                        </p:commandLink>
                                         <p:overlayPanel id="fileDetail" for="fileName" hideEffect="fade" dynamic="true" showCloseIcon="true" style="position: fixed;">
                                             <h:panelGrid columns="2" columnClasses="column"   cellpadding="0" cellspacing="0" border="1" >
                                                 <h:outputText value="Dosya ismi :" />
@@ -120,26 +132,26 @@
                                                 <h:outputText value="Dosya boyutu :" />
                                                 <h:outputText value="#{file.boyut} kb" />
                                                 <h:outputText value="Dosya türü :" />
-                                                <h:outputText value="#{file.dosyaTuru}" /> 
+                                                <h:column>
+                                                    <p:graphicImage style="height: 16px;width: 16px" library="images" name="#{file.image}"/>
+                                                    <h:outputText value="#{file.dosyaTuru}" /> 
+                                                </h:column>   
                                                 <h:outputText value="Kaydeden kişi :" />
                                                 <h:outputText value="#{file.kaydedenKullaniciAdi}" />
-
                                                 <h:outputText value="Bulunduğu tablo :" />
                                                 <h:outputText value="#{file.table}" />
                                                 <h:outputText value="Dosya ID :" />
                                                 <h:outputText value="#{file.id}" />
                                                 <h:outputText value="" />
-                                                <p:commandButton  ajax="treu" value="Dosyayı kaydet">                                                    
+                                                <p:commandButton ajax="false" value="Dosyayı kaydet">                                                    
                                                     <p:fileDownload value="#{indexBean.getDownloadFile(file)}" />
                                                 </p:commandButton>                                            
                                             </h:panelGrid>
-                                        </p:overlayPanel>
+                                        </p:overlayPanel>        
                                     </p:column>
-                                </p:row>
+                                </p:row>            
                             </h:panelGrid>
                         </p:dataGrid>
-    
-             
                     </p:layoutUnit> 
                     
                     <p:overlayPanel id="searchPanel" for="advSearch" hideEffect="fade" style="width:370px; position: fixed">
@@ -150,32 +162,37 @@
                                     </p:row>
                                 </f:facet>
                                 <h:outputText value="Dosya İsmi :" />
-                                <p:inputText/>
-                                <h:outputText value="Sadece son versiyon :" />
-                                <p:selectBooleanCheckbox value="#{indexBean.check}"/>
+                                <p:inputText value="#{indexBean.searchDosyaIsmi}"/>
+                                <h:outputLabel for="versiyon" value="Sadece son versiyon :" />
+                                <p:selectBooleanCheckbox id="versiyon" value="#{indexBean.searchSonmuTik}"/>
                                 <p:outputLabel for="dosyaTuru" value="Dosya türü :" />
-                                <p:selectOneMenu id="dosyaTuru" value="#{indexBean.console}" style="width:100px">
-                                    <f:selectItem itemLabel="hepsi" itemValue="hepsi" />
-                                    <f:selectItem itemLabel=".pdf" itemValue="pdf" />
-                                    <f:selectItem itemLabel=".doc" itemValue="doc" />
-                                    <f:selectItem itemLabel=".jpg" itemValue="jpg" />
-                                    <f:selectItem itemLabel=".jpeg" itemValue="jpeg" />
-                                    <f:selectItem itemLabel=".png" itemValue="png" />
+                                <p:selectOneMenu id="dosyaTuru" value="#{indexBean.searchDosyaturu}" style="width:100px">
+                                    <f:selectItem itemLabel="hepsi" itemValue="ALL" />
+                                    <f:selectItem itemLabel=".pdf" itemValue="PDF" />
+                                    <f:selectItem itemLabel=".doc" itemValue="DOC" />
+                                    <f:selectItem itemLabel=".jpg" itemValue="JPG" />
+                                    <f:selectItem itemLabel=".jpeg" itemValue="JPEG" />
+                                    <f:selectItem itemLabel=".png" itemValue="PNG" />
                                 </p:selectOneMenu>
                                 <p:outputLabel  for="firstDate" value="Yüklenme tarihi :" />                        
-                                <p:calendar id="firstDate" value="#{indexBean.firstDate}"  navigator="true" pattern="yyyy-MM-dd"  />
-                                <h:outputLabel value="" for="lastDate"/>
-                                <p:calendar id="lastDate" value="#{indexBean.lastDate}"  navigator="true" pattern="yyyy-MM-dd" />
+                                <p:panelGrid>
+                                    <p:column> 
+                                        <p:calendar id="firstDate" styleClass="dateStyle" value="#{indexBean.firstDate}" navigator="true" pattern="yyyy-MM-dd"  />
+                                    </p:column>
+                                    <p:column>
+                                        <p:calendar id="lastDate" styleClass="dateStyle" value="#{indexBean.lastDate}" navigator="true" pattern="yyyy-MM-dd" />
+                                    </p:column>
+                                </p:panelGrid>
                                 <h:outputText value="Kaydeden kişi :" />
-                                <p:inputText/>
+                                <p:inputText value="#{indexBean.searchKaydedenKullanici}"/>
                                 <h:outputText value="Tablo adı :" />
-                                <p:inputText/>
+                                <p:inputText value="#{indexBean.searchTablo}"/>
                                 <h:outputText value="SDTP kodu :" />
-                                <p:inputText/>
+                                <p:inputText value="#{indexBean.searchKodu}"/>
                                 <h:outputText value="SDTP konusu :" />
-                                <p:inputText/>
+                                <p:inputText value="#{indexBean.searchKonusu}"/>
                                 <h:outputText value="" />
-                                <p:commandButton value="Ara" style="width: 180px " oncomplete="PF('dlg').show()" icon="ui-icon-search"  />
+                                <p:commandButton value="Ara" style="width: 180px " actionListener="#{indexBean.searchAdvanced}" ajax="false" oncomplete="PF('dlg').show()" icon="ui-icon-search"  />
                             </h:panelGrid>
                         </p:overlayPanel>
                     
