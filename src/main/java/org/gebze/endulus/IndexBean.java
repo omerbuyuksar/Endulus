@@ -59,11 +59,11 @@ public class IndexBean implements Serializable {
         try {
             mydb.connectToMongoDB("mydb", 27017, "192.168.77.25", "nico", "nico");
             //files = mydb.getAllFiles("veriler");
-            addMessage("Connected");
+            addMessage("MongoDB'ye bağlanıldı");
             addSdtpNodes();
             connected = true;
         } catch (Exception e) {
-            addMessage("Connection Failed");
+            addMessage("Bağlantı Kurulamadı !");
         }
 
         return 0;
@@ -74,9 +74,9 @@ public class IndexBean implements Serializable {
             files.clear();
             root = new DefaultTreeNode("Root", null);
             connected = false;
-            addMessage("Log out");
+            addMessage("Çıkış yapıldı");
         } catch (Exception e) {
-            addMessage("Log out Failed");
+            addMessage("Çıkış yapılamadı !");
         }
 
         return 0;
@@ -96,7 +96,7 @@ public class IndexBean implements Serializable {
         Set<String> collectionNameList = null;
         List<String> list = new ArrayList();
         mydb = new MongoDbService();
-        mydb.setCursorLimit(0);
+        mydb.setCursorLimit(100);
         files = new ArrayList<>();
         sdtpService = new SdtpService();
         root = new DefaultTreeNode("Root", null);
@@ -104,20 +104,20 @@ public class IndexBean implements Serializable {
 
     public void searchByName() {
         if (!connected) {
-            addMessage("Connect DB First");
+            addMessage("Önce DB'ye bağlanın !");
             return;
         }
         files = mydb.getFilesByName("veriler", getSearchText());
-        addMessage("" + files.size() + " Files Found");
+        addMessage("" + files.size() + " Dosya Bulundu.");
     }
 
     public void searchAdvanced() {
         if (!connected) {
-            addMessage("Connect DB First");
+            addMessage("Önce DB'ye bağlanın !");
             return;
         }
-        files = mydb.getFilesAdvanced("veriler", getAdvancedSearchValues());
-        addMessage("" + files.size() + " Files Found");
+        files = mydb.getFilesAdvanced("veriler", getAdvancedSearchValues(),firstDate,lastDate);
+        addMessage("" + files.size() + " Dosya Bulundu.");
     }
 
     public BasicDBObject getAdvancedSearchValues() {
@@ -158,13 +158,13 @@ public class IndexBean implements Serializable {
         List<JSdtpModel> list = sdtpService.getSdtp();
 
         if (list == null) {
-            addMessage("Cannot Get SDTP Files");
+            addMessage("SDTP Servise Bağlanılamadı !");
 
             return;
         }
 
         for (JSdtpModel list1 : list) {
-            root.getChildren().add(new SdtpTreeNode(list1, list1.getKonu()));
+            root.getChildren().add(new SdtpTreeNode(list1, list1.getStdpKodu()+" "+list1.getKonu()));
         }
 
     }
@@ -177,11 +177,12 @@ public class IndexBean implements Serializable {
             str = MongoDbService.displayContentType(file.getFileName());
         } catch (Exception e) {
             e.printStackTrace();
-            addMessage("File cannot Download");
+            addMessage("Dosya Indirilemedi !");
             return null;
         }
         return new DefaultStreamedContent(input, str, file.getFileName());
     }
+    
 
     public void onNodeSelect(NodeSelectEvent event) {
 
@@ -210,7 +211,7 @@ public class IndexBean implements Serializable {
             list = sdtpService.findSdtpWithId("" + selectedNode.getSdtpmodel().getId());
 
             if (list == null) {
-                addMessage("Cannot Get SDTP Files");
+                addMessage("SDTP Servise Bağlanılamadı !");
                 return;
             }
             for (JSdtpModel list1 : list) {
@@ -223,7 +224,7 @@ public class IndexBean implements Serializable {
             files.clear();
             llist = sdtpService.getEbysDizin("" + selectedNode.getSdtpmodel().getId());
             if (llist == null) {
-                addMessage("Cannot Get SDTP Files");
+                addMessage("SDTP Servise Bağlanılamadı !");
                 return;
             }
             List<FileModel> modelList;
@@ -233,9 +234,8 @@ public class IndexBean implements Serializable {
                     mydb.connectToMongoDB("mydb", 27017, "192.168.77.25", "nico", "nico");
                     connected = true;
                 } catch (UnknownHostException ex) {
-                    addMessage("Cannot Connect to DB");
+                    addMessage("MongoDB'ye Bağlanılamadı !");
                     Logger.getLogger(IndexBean.class.getName()).log(Level.SEVERE, null, ex);
-                    addMessage("Cannot Connect to DB");
                     return;
                 }
             }
