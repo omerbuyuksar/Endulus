@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import org.bson.types.ObjectId;
 
 /**
- *
  * @author Ömer
  */
 public class MongoDbService {

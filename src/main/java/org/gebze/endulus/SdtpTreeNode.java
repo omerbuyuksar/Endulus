@@ -10,7 +10,11 @@ import org.primefaces.model.TreeNode;
 
 /**
  *
+<<<<<<< HEAD
  * @author Ömer
+=======
+ * @author mypc
+>>>>>>> 9b1f8cffdeeac3b6be7ff13d54b743b84559ed98
  */
 public class SdtpTreeNode extends DefaultTreeNode {
     

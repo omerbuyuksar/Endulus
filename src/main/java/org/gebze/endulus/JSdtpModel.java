@@ -6,8 +6,6 @@
 package org.gebze.endulus;
 
 /**
- *
- * @author Feyyaz Toptaş
  */
 public class JSdtpModel
         extends JbaseModel {

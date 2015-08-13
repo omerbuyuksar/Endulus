@@ -38,6 +38,7 @@ public class MediaManager {
     private MongoDbService service;
     private static final boolean debug=true; 
 
+
     public MediaManager() {
         service= new MongoDbService();
         try {

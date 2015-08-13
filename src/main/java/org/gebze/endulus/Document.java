@@ -8,7 +8,6 @@ package org.gebze.endulus;
 import java.util.Date;
 
 /**
- *
  * @author Ömer 
  */
 public class Document {

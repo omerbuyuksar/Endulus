@@ -15,7 +15,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
+<<<<<<< HEAD
  * @author Ömer
+=======
+ * @author mypc
+>>>>>>> 9b1f8cffdeeac3b6be7ff13d54b743b84559ed98
  */
 public class SdtpService {
 
