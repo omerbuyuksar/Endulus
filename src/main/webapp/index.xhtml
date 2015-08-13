@@ -1,0 +1,260 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+    <f:view contentType="text/html" >
+        <h:head>
+            <f:facet name="first">
+                <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
+                <title>Main Page</title>
+            </f:facet>
+            <style type="text/css">
+                .ui-layout-unit .ui-layout-unit-content{
+                    padding: 0.2em 0em;
+                    border: 0px none;
+                }
+                .ui-full-size{
+                    width: 100%;
+                    height: 100%;
+                }
+                .ui-fith-size{
+                    width: auto;
+                    height: auto;
+                }
+                .ui-layout-north .ui-layout-unit-content {
+                    overflow: hidden !important;
+                }
+                .ui-layout-west .ui-layout-unit-content {
+                    overflow-x: hidden !important;
+                }
+                .ui-icon-0-folder{
+                    background-image: url("#{resource['images/blue-folder.png']}") !important;
+                }
+                .ui-icon-1-folder{
+                    background-image: url("#{resource['images/yellow-folder.png']}") !important;
+                }
+                .ui-icon-2-folder{
+                    background-image: url("#{resource['images/red-folder.png']}") !important;
+                }
+                .text-word-wrap {
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-all;
+                }
+                .dateStyle input {
+                    width: 80px;
+                    position: relative;
+                    left: -10px;
+                }
+                .styleMiniToolbar {
+                    background-color: #e1eded;
+                    position: fixed;
+                    z-index: +1;    
+                }
+            </style>
+        </h:head>
+        <h:body style="background-color: #e1eded">
+            <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+            <p:dialog widgetVar="statusDialog" modal="false" draggable="false" closable="false" resizable="false" showHeader="false">
+                <p:graphicImage library="images" name="ajax-loader1.gif" />                
+            </p:dialog>
+            <h:form id="form">
+                <p:dialog  id="pdfDialog" header="PDF File" widgetVar="wPdfDialog" modal="true" showEffect="fade" hideEffect="fade" height="550px" width="800px" dynamic="true" >
+                    <p:media  id="pdfV" value="#{mediaManager.stream}" player="pdf" height="100%" width="100%">
+                        <f:param id="fileId" name="fileId" value="#{indexBean.selectedShowFile.id}"/>
+                        <f:param id="fileTable" name="fileTable" value="#{indexBean.selectedShowFile.table}"/>
+                    </p:media>
+                </p:dialog>
+
+                <h:outputStylesheet name="css/default.css" />
+                <p:growl id="messages" showDetail="true" />
+
+                <p:layout fullPage="true" class="ui-layout-unit" style="background-color: #e1eded">
+                    <p:layoutUnit position="north" style="background-color: #e1eded">
+                        <p:toolbar style="background-color: #e1eded">
+                            <f:facet name="left">
+                                <p:graphicImage style="height: 25px;width: 100px" library="images" name="gebze_bel_logo.png"/> 
+                                <p:graphicImage style="height: 25px;width: 160px" library="images" name="logo_endulus.png"/> 
+                            </f:facet>
+                            <f:facet name="right" > 
+                                <p:inputText id="globalFilter"   placeholder="Kelime girin" value="#{indexBean.searchText}"  />               
+                                <p:commandButton id = "search" actionListener="#{indexBean.searchByName}" title="Search:"  ajax="false" icon="ui-icon-search" 
+                                                 style="background-color: #c2dfe3"/>
+                                <span class="ui-separator">
+                                    <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                                </span>
+                                <p:commandButton id="advSearch" value="Ara..." type="button" icon="ui-icon-triangle-1-s" style="background-color: #c2dfe3"/>
+                                <span class="ui-separator">
+                                    <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                                </span>
+                                <p:commandButton value = " Bağlan " id="connectDB" actionListener="#{indexBean.buttonConnectDb}" ajax="false" update=":form:messages" 
+                                                 style="background-color: #c2dfe3; width: 160px;"/>   
+                                <span class="ui-separator">
+                                    <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                                </span>
+                                <p:commandButton value="Çıkış"  ajax="false" id="ajax" update="growl" actionListener="#{indexBean.buttonLogout}" 
+                                                 style="background-color: #c2dfe3; width: 80px" />
+                            </f:facet>
+                        </p:toolbar>
+                    </p:layoutUnit>
+                    <p:layoutUnit position="west" style="background-color: aliceblue;resize: horizontal;max-width: 300px">
+                        <p:toolbar styleClass="styleMiniToolbar" style="height: 27px; width: 295px;" >
+                            <f:facet name="left">
+                                <h:outputText value="Klasörler" style="font-size: large; "/>
+                            </f:facet>
+                            <!--
+                            <f:facet name="right">
+                                <h:inputText style="width: available"/>
+                            </f:facet>
+                            -->
+                        </p:toolbar> 
+                        <p:tree id="tree" value="#{indexBean.root}" var="klasor" dynamic="true" selection="#{indexBean.selectedNode}" selectionMode="single" nodeVar="klasorNode"
+                                style="background-color: #e1eded; position: relative; top: 33px;">                            
+                            <p:ajax event="select" listener="#{indexBean.onNodeSelect}" update=":form:tree :form:files" />
+                            <p:treeNode icon="ui-icon-#{klasorNode.sdtpmodel.sdtpTuru}-folder"  >
+                                <h:outputText value="#{klasor}" />
+                            </p:treeNode>
+                        </p:tree>
+                    </p:layoutUnit>
+                    <p:layoutUnit position="center">
+                        <p:toolbar style="background-color: #e1eded">
+                            <f:facet name="left">
+                                <h:outputText value="Dosyalar" style="font-size: large;"/>
+                            </f:facet>
+                        </p:toolbar>    
+                        <p:dataGrid id="files" var="file" value="#{indexBean.files}"  >
+                            <h:panelGrid style="width: 280px;">
+                                <p:row>
+                                    <p:column>
+                                        <p:commandLink id="fileName" ajax="true" actionListener="#{indexBean.pdfFileAtt}" >
+                                            <f:attribute name="file" value="#{file}" />
+                                            <p:panelGrid>
+                                                <p:row>
+                                                    <p:column style="border-color: saddlebrown; background-color: aliceblue">
+                                                        <p:graphicImage id="img" style="height: 30px;width: 30px" library="images" name="#{file.image}"/> 
+                                                    </p:column>
+                                                    <p:column style="border-bottom: hidden; border-right: hidden; border-top: hidden;">
+                                                        <h:outputText value="#{file.fileName}" styleClass="text-word-wrap" />   
+                                                    </p:column>   
+                                                </p:row>
+                                            </p:panelGrid> 
+                                        </p:commandLink>
+                                        <p:overlayPanel id="fileDetail" for="fileName"   showCloseIcon="true" showEffect="blind" hideEffect="fade" dynamic="false" style="position: fixed; background-color: lightgoldenrodyellow">
+                                            <h:panelGrid id="oldversion" columns="2" columnClasses="column"   cellpadding="0" cellspacing="0" border="1" >
+                                                <h:outputText value="Dosya ismi :" />
+                                                <h:outputText value="#{file.fileName}" />
+                                                <h:outputText value="Dosya boyutu :" />
+                                                <h:outputText value="#{file.boyut} kb" />
+                                                <h:outputText value="Dosya türü :" />
+                                                <h:column>
+                                                    <p:graphicImage style="height: 16px;width: 16px" library="images" name="#{file.image}"/>
+                                                    <h:outputText value="#{file.dosyaTuru}" /> 
+                                                </h:column>   
+                                                <h:outputText value="Kaydeden kişi :" />
+                                                <h:outputText value="#{file.kaydedenKullaniciAdi}" />
+                                                <h:outputText value="Bulunduğu tablo :" />
+                                                <h:outputText value="#{file.table}" />
+                                                <h:outputText value="Klasör path :" />
+                                                <h:outputText value="#{file.klasorPath}" />
+                                                <h:outputText value="Sonuncu mu? :" />
+                                                <h:outputText value="#{file.sonuncuMu}" />
+                                                <h:outputText value="Dosya ID :" />
+                                                <h:outputText value="#{file.id}" />
+                                                <p:commandButton actionListener="#{indexBean.pdfFileShow}" value="Göster"  update=":form:pdfV :form:pdfDialog" style="background-color: #ee9f5d; position: relative;left:15px">
+                                                    <f:attribute name="file" value="#{file}" />
+                                                </p:commandButton>
+                                                <p:panelGrid >
+                                                    <p:column style="border: hidden"> 
+                                                        <p:commandButton ajax="false" value="Dosyayı Kaydet" style="background-color: #ee9f5d ">                                                    
+                                                            <p:fileDownload value="#{indexBean.getDownloadFile(file)}" />
+                                                        </p:commandButton>   
+                                                    </p:column> 
+                                                    <p:column style="border: hidden">
+                                                        <p:commandButton id="oldFile"  ajax="true" value="Diğer Versiyonları Gör" style="background-color: #e1a669; font-size: smaller;" actionListener="#{indexBean.searchOldVersions}" update=":form:files:oldFiles" />
+                                                        <p:overlayPanel id="oldFileDetail" for="oldFile" showEffect="blind"   hideEffect="fade" dynamic="false"  style="position: fixed; background-color: #e9b682; overflow-y: auto; overflow-x: hidden"   >
+
+                                                            <p:dataGrid id="oldFiles" var="oldFile" value="#{indexBean.oldFiles}" columns="1"  style="height: 250px; background-color: #f5e89a; overflow-x: visible"  rowIndexVar="rowIndex">
+
+                                                                <h:panelGrid columns="4" columnClasses="column"   cellpadding="0" cellspacing="0" border="1" style="background-color: #f5e89a; overflow-x: visible">
+
+
+                                                                    <h:outputText value="#{rowIndex+1}.Versiyon" style="font-weight: bold;"/>
+
+
+                                                                    <p:graphicImage style="height: 16px;width: 16px" library="images" name="#{oldFile.image}"/>
+
+
+
+                                                                    <p:commandButton actionListener="#{indexBean.pdfFileShow}" value="Göster" update=":form:pdfV :form:pdfDialog" style="background-color: #ee9f5d;">
+                                                                        <f:attribute name="file" value="#{oldFile}" />
+                                                                    </p:commandButton>
+
+
+                                                                    <p:commandButton ajax="false" value="Kaydet" style="background-color: #ee9f5d ">                                                    
+                                                                        <p:fileDownload value="#{indexBean.getDownloadFile(oldFile)}" />
+                                                                    </p:commandButton>  
+
+
+                                                                </h:panelGrid>
+                                                            </p:dataGrid>
+                                                        </p:overlayPanel>  
+                                                    </p:column>
+                                                </p:panelGrid>    
+                                            </h:panelGrid>
+                                        </p:overlayPanel>        
+                                    </p:column>
+                                </p:row>            
+                            </h:panelGrid>
+                        </p:dataGrid>
+                    </p:layoutUnit> 
+
+                    <p:overlayPanel id="searchPanel" for="advSearch" hideEffect="fade"  style="width:370px; position: fixed; background-color: #e1eded;">
+                        <h:panelGrid columns="2" columnClasses="column" cellpadding="1">
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column colspan="2">Gelişmiş Arama</p:column>
+                                </p:row>
+                            </f:facet>
+                            <h:outputText value="Dosya İsmi :" />
+                            <p:inputText value="#{indexBean.searchDosyaIsmi}"/>
+                            <h:outputLabel for="versiyon" value="Sadece son versiyon :" />
+                            <p:selectBooleanCheckbox id="versiyon" value="#{indexBean.searchSonmuTik}"/>
+                            <p:outputLabel for="dosyaTuru" value="Dosya türü :" />
+                            <p:selectOneMenu id="dosyaTuru" value="#{indexBean.searchDosyaturu}" style="width:100px">
+                                <f:selectItem itemLabel="hepsi" itemValue="ALL" />
+                                <f:selectItem itemLabel=".pdf" itemValue="PDF" />
+                                <f:selectItem itemLabel=".doc" itemValue="DOC" />   
+                                <f:selectItem itemLabel=".jpg" itemValue="JPG" />
+                                <f:selectItem itemLabel=".jpeg" itemValue="JPEG" />
+                                <f:selectItem itemLabel=".png" itemValue="PNG" />
+                            </p:selectOneMenu>
+                            <p:outputLabel  for="firstDate" value="Yüklenme tarihi :" />                        
+                            <p:panelGrid >
+                                <p:column style="border: hidden"> 
+                                    <p:calendar id="firstDate" styleClass="dateStyle" value="#{indexBean.firstDate}" navigator="true" pattern="yyyy-MM-dd"  />
+                                </p:column> 
+                                <p:column style="border: hidden">
+                                    <p:calendar id="lastDate" styleClass="dateStyle" value="#{indexBean.lastDate}" navigator="true" pattern="yyyy-MM-dd" />
+                                </p:column>
+                            </p:panelGrid>
+                            <h:outputText value="Kaydeden kişi :" />
+                            <p:inputText value="#{indexBean.searchKaydedenKullanici}"/>
+                            <h:outputText value="Tablo adı :" />
+                            <p:inputText value="#{indexBean.searchTablo}"/>
+                            <h:outputText value="SDTP kodu :" />
+                            <p:inputText value="#{indexBean.searchKodu}"/>
+                            <h:outputText value="SDTP konusu :" />
+                            <p:inputText value="#{indexBean.searchKonusu}"/>
+                            <h:outputText value="" />
+                            <p:commandButton value="Ara" style="width: 200px; background-color: #c2dfe3; " actionListener="#{indexBean.searchAdvanced}" ajax="false" oncomplete="PF('dlg').show()" icon="ui-icon-search" />
+                        </h:panelGrid>
+                    </p:overlayPanel>
+                </p:layout>
+            </h:form>
+        </h:body>
+    </f:view>
+</html>
